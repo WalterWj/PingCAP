@@ -35,4 +35,4 @@ Split Region 27 Command executed
 Please check the Region 26 is in Top
 ```
 
-**注意:** 在脚本使用过程中，如果不进行内容输入，将会分裂 TOP 读写热点 region。如果想选择性分裂 region，请严格按照提醒输入，如：1,2。
+**注意:** 在脚本使用过程中，如果不进行内容输入，将会分裂所有 TOP 读写热点 region。如果想选择性分裂 region，请严格按照提醒输入，如：1,2。
