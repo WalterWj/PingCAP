@@ -47,7 +47,8 @@ def region_messges():
         _flow = round(_r_r.get("read_bytes", 0)/1024/1024)
         _db_name, _table_name = table_db_info(_r_r["id"])
         print("leader and region id is [{}] [{}], Store id is {} and IP is {}, and Flow valuation is {}MB," 
-            " DB name is {}, table name is {}").format(_r_r["leader"]["id"], _r_r["id"],_r_r["leader"]["store_id"], store_info(_r_r["leader"]["store_id"]), _flow, _db_name, _table_name)
+            " DB name is {}, table name is {}").format(_r_r["leader"]["id"], _r_r["id"],_r_r["leader"]["store_id"], 
+            store_info(_r_r["leader"]["store_id"]), _flow, _db_name, _table_name)
         _r_regions.append(str(_r_r["id"]))
 
     _w_regions = []
@@ -56,7 +57,8 @@ def region_messges():
         _flow = round(_W_r.get("written_bytes", 0)/1024/1024)
         _db_name, _table_name = table_db_info(_r_r["id"])
         print("leader and region id is [{}] [{}], Store id is {} and IP is {}, and Flow valuation is {}MB,"
-            " DB name is {}, table name is {}").format(_W_r["leader"]["id"], _W_r["id"], _W_r["leader"]["store_id"], store_info(_W_r["leader"]["store_id"]), _flow, _db_name, _table_name)
+            " DB name is {}, table name is {}").format(_W_r["leader"]["id"], _W_r["id"], _W_r["leader"]["store_id"], 
+            store_info(_W_r["leader"]["store_id"]), _flow, _db_name, _table_name)
         _w_regions.append(str(_W_r["id"]))
 
     _r_regions = ','.join(_r_regions)
@@ -90,7 +92,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Show the hot region details and splits")
     parser.add_argument("--th", dest="tidb", help="tidb status url, default: 127.0.0.1:10080", default="127.0.0.1:10080")
     parser.add_argument("--ph", dest="pd", help="pd status url, default: 127.0.0.1:2379", default="127.0.0.1:2379")
-    parser.add_argument("--top", dest="top", help="the top read/write region number, default: 1", default="1")
+    parser.add_argument("top", help="the top read/write region number")
     args = parser.parse_args()
     return args
 
