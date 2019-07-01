@@ -12,7 +12,7 @@
 ```shell
 # 查看脚本说明
 [tidb@ip-172-16-4-51 scripts]$ ./split.py -h
-usage: split.py [-h] [--th TIDB] [--ph PD] [--top TOP]
+usage: split.py [-h] [--th TIDB] [--ph PD] [top TOP]
 
 Show the hot region details and splits
 
@@ -20,10 +20,10 @@ optional arguments:
   -h, --help  show this help message and exit
   --th TIDB   tidb status url, default: 127.0.0.1:10080
   --ph PD     pd status url, default: 127.0.0.1:2379
-  --top TOP   the top read/write region number, default: 1
+  top TOP   the top read/write region number, default: 1
 
 # 脚本使用
-[tidb@ip-172-16-4-51 scripts]$ ./split.py --th 127.0.0.1:10080 --ph 172.16.4.51:2379 --top 1
+[tidb@ip-172-16-4-51 scripts]$ ./split.py --th 127.0.0.1:10080 --ph 172.16.4.51:2379 top 1
 --------------------TOP 10 Read region messegs--------------------
 leader and region id is [53] [27], Store id is 7 and IP is 172.16.4.58:20160, and Flow valuation is 11.0MB, DB name is mysql, table name is stats_buckets
 --------------------TOP 10 Write region messegs--------------------
