@@ -3,6 +3,7 @@
 ## 1. split_hot_region.py
 - 脚本说明
   - 主要是为了快速打散热点
+  - TiDB 3.0 版本开始已经有了打散表的命令，可结合使用。
 
 - 使用说明
   - 需要将脚本放在 tidb-ansible/scripts 目录下
@@ -12,15 +13,17 @@
 ```shell
 # 查看脚本说明
 [tidb@ip-172-16-4-51 scripts]$ ./split.py -h
-usage: split.py [-h] [--th TIDB] [--ph PD] [top TOP]
+usage: split.py [-h] [--th TIDB] [--ph PD] top
 
 Show the hot region details and splits
+
+positional arguments:
+  top         the top read/write region number
 
 optional arguments:
   -h, --help  show this help message and exit
   --th TIDB   tidb status url, default: 127.0.0.1:10080
   --ph PD     pd status url, default: 127.0.0.1:2379
-  top TOP   the top read/write region number, default: 1
 
 # 脚本使用
 [tidb@ip-172-16-4-51 scripts]$ ./split.py --th 127.0.0.1:10080 --ph 172.16.4.51:2379 top 1
