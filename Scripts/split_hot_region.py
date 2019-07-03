@@ -14,7 +14,7 @@ def main():
     print("The top Write {} Region is {}").format(args.top, w_regions)
     regions = r_regions + "," + w_regions
     _region = raw_input(
-        "Please Enter the region you want to split(Such as 1,2,3, default is all):") or regions
+        "Please Enter the region you want to split(Such as 1,2,3, default is all): ") or regions
     _region = _region.split(",")
     try:
         for region_id in _region:
