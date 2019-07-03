@@ -16,8 +16,19 @@ def table_region():
     webContent = subprocess.check_output(["curl", "-sl", httpAPI])
     region_info = json.loads(webContent)
     table_id = region_info['id']
-    
-
+    region_id = []
+    index_region_id = []
+    index_name = []
+    for regions in region_info['record_regions']:
+        region_id.append(regions["region_id"])
+    if region_info['indices'] is not None:
+        for regions in region_info['indices']:
+            index_region_id.append(regions['id'])
+            index_name.append(regions['name'])
+            
+            for store_id in regions['regions']:
+                
+                print('Index name is {}, and leader store id is {}').format(regions['name'], region['regions'][])
 
 def Split_region(region_id):
     args = parse_args()

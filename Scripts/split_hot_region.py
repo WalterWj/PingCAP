@@ -6,13 +6,15 @@ import argparse
 import shlex
 import subprocess
 
+
 def main():
     args = parse_args()
     r_regions, w_regions = region_messges()
     print("The top Read {} Region is {}").format(args.top, r_regions)
     print("The top Write {} Region is {}").format(args.top, w_regions)
     regions = r_regions + "," + w_regions
-    _region = raw_input("Please Enter the region you want to split(Such as 1,2,3, default is all):") or regions
+    _region = raw_input(
+        "Please Enter the region you want to split(Such as 1,2,3, default is all):") or regions
     _region = _region.split(",")
     try:
         for region_id in _region:
@@ -22,6 +24,7 @@ def main():
                 print('Please check the Region {} is in Top').format(region_id)
     except:
         print("Please enter the correct content! Such as 1,2,3")
+
 
 def Split_region(region_id):
     args = parse_args()
@@ -33,10 +36,13 @@ def Split_region(region_id):
     except:
         print("Split Region {} is faild").format(region_id)
 
+
 def region_messges():
     args = parse_args()
-    h_r_region = "../resources/bin/pd-ctl -u http://{} -d region topread {}".format(args.pd, args.top)
-    h_w_region = "../resources/bin/pd-ctl -u http://{} -d region topwrite {}".format(args.pd, args.top)
+    h_r_region = "../resources/bin/pd-ctl -u http://{} -d region topread {}".format(
+        args.pd, args.top)
+    h_w_region = "../resources/bin/pd-ctl -u http://{} -d region topwrite {}".format(
+        args.pd, args.top)
     _r = subprocess.check_output(shlex.split(h_r_region))
     _w = subprocess.check_output(shlex.split(h_w_region))
     r_regions = json.loads(_r)
@@ -44,27 +50,34 @@ def region_messges():
     _r_regions = []
     print('--------------------TOP 10 Read region messegs--------------------')
     for _r_r in r_regions["regions"]:
-        _flow = round(_r_r.get("read_bytes", 0)/1024/1024)
+        _flow = round(_r_r.get("read_bytes", 0) / 1024 / 1024)
         _db_name, _table_name = table_db_info(_r_r["id"])
-        print("leader and region id is [{}] [{}], Store id is {} and IP is {}, and Flow valuation is {}MB," 
-            " DB name is {}, table name is {}").format(_r_r["leader"]["id"], _r_r["id"],_r_r["leader"]["store_id"], 
-            store_info(_r_r["leader"]["store_id"]), _flow, _db_name, _table_name)
+        print(
+            "leader and region id is [{}] [{}], Store id is {} and IP is {}, and Flow valuation is {}MB,"
+            " DB name is {}, table name is {}").format(
+                _r_r["leader"]["id"], _r_r["id"], _r_r["leader"]["store_id"],
+                store_info(_r_r["leader"]["store_id"]), _flow, _db_name,
+                _table_name)
         _r_regions.append(str(_r_r["id"]))
 
     _w_regions = []
     print('--------------------TOP 10 Write region messegs--------------------')
     for _W_r in w_regions["regions"]:
-        _flow = round(_W_r.get("written_bytes", 0)/1024/1024)
+        _flow = round(_W_r.get("written_bytes", 0) / 1024 / 1024)
         _db_name, _table_name = table_db_info(_r_r["id"])
-        print("leader and region id is [{}] [{}], Store id is {} and IP is {}, and Flow valuation is {}MB,"
-            " DB name is {}, table name is {}").format(_W_r["leader"]["id"], _W_r["id"], _W_r["leader"]["store_id"], 
-            store_info(_W_r["leader"]["store_id"]), _flow, _db_name, _table_name)
+        print(
+            "leader and region id is [{}] [{}], Store id is {} and IP is {}, and Flow valuation is {}MB,"
+            " DB name is {}, table name is {}").format(
+                _W_r["leader"]["id"], _W_r["id"], _W_r["leader"]["store_id"],
+                store_info(_W_r["leader"]["store_id"]), _flow, _db_name,
+                _table_name)
         _w_regions.append(str(_W_r["id"]))
 
     _r_regions = ','.join(_r_regions)
     _w_regions = ','.join(_w_regions)
 
     return _r_regions, _w_regions
+
 
 def table_db_info(region_id):
     args = parse_args()
@@ -80,21 +93,32 @@ def table_db_info(region_id):
         _table_name = 'NUll, This table has been drop or truncate'
     return _db_name, _table_name
 
+
 def store_info(store_id):
     args = parse_args()
-    _cmd = "../resources/bin/pd-ctl -u http://{} -d store {}".format(args.pd, store_id)
+    _cmd = "../resources/bin/pd-ctl -u http://{} -d store {}".format(args.pd,
+                                                                     store_id)
     _sc = subprocess.check_output(shlex.split(_cmd))
     _store_info = json.loads(_sc)
     info = _store_info["store"]["address"]
     return info
 
+
 def parse_args():
-    parser = argparse.ArgumentParser(description="Show the hot region details and splits")
-    parser.add_argument("--th", dest="tidb", help="tidb status url, default: 127.0.0.1:10080", default="127.0.0.1:10080")
-    parser.add_argument("--ph", dest="pd", help="pd status url, default: 127.0.0.1:2379", default="127.0.0.1:2379")
+    parser = argparse.ArgumentParser(
+        description="Show the hot region details and splits")
+    parser.add_argument("--th",
+                        dest="tidb",
+                        help="tidb status url, default: 127.0.0.1:10080",
+                        default="127.0.0.1:10080")
+    parser.add_argument("--ph",
+                        dest="pd",
+                        help="pd status url, default: 127.0.0.1:2379",
+                        default="127.0.0.1:2379")
     parser.add_argument("top", help="the top read/write region number")
     args = parser.parse_args()
     return args
+
 
 if __name__ == "__main__":
     main()
