@@ -27,9 +27,9 @@ optional arguments:
 
 # 脚本使用
 [tidb@ip-172-16-4-51 scripts]$ ./split_hot_region.py --th 127.0.0.1:10080 --ph 172.16.4.51:2379 top 1
---------------------TOP 10 Read region messegs--------------------
+--------------------TOP 1 Read region messegs--------------------
 leader and region id is [53] [27], Store id is 7 and IP is 172.16.4.58:20160, and Flow valuation is 11.0MB, DB name is mysql, table name is stats_buckets
---------------------TOP 10 Write region messegs--------------------
+--------------------TOP 1 Write region messegs--------------------
 leader and region id is [312] [309], Store id is 6 and IP is 172.16.4.54:20160, and Flow valuation is 61.0MB, DB name is mysql, table name is stats_buckets
 The top Read 1 Region is 27
 The top Write 1 Region is 309
