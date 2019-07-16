@@ -48,7 +48,8 @@ def region_messges():
     r_regions = json.loads(_r)
     w_regions = json.loads(_w)
     _r_regions = []
-    print('--------------------TOP 10 Read region messegs--------------------')
+    print('--------------------TOP {} Read region messegs--------------------').format(
+        args.top)
     for _r_r in r_regions["regions"]:
         _flow = round(_r_r.get("read_bytes", 0) / 1024 / 1024)
         _db_name, _table_name = table_db_info(_r_r["id"])
@@ -61,7 +62,8 @@ def region_messges():
         _r_regions.append(str(_r_r["id"]))
 
     _w_regions = []
-    print('--------------------TOP 10 Write region messegs--------------------')
+    print('--------------------TOP {} Write region messegs--------------------').format(
+        args.top)
     for _W_r in w_regions["regions"]:
         _flow = round(_W_r.get("written_bytes", 0) / 1024 / 1024)
         _db_name, _table_name = table_db_info(_r_r["id"])
