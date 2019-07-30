@@ -26,7 +26,7 @@ optional arguments:
   --ph PD     pd status url, default: 127.0.0.1:2379
 
 # 脚本使用
-[tidb@ip-172-16-4-51 scripts]$ ./split_hot_region.py --th 127.0.0.1:10080 --ph 172.16.4.51:2379 top 1
+[tidb@ip-172-16-4-51 scripts]$ ./split_hot_region.py --th 127.0.0.1:10080 --ph 172.16.4.51:2379 1
 --------------------TOP 1 Read region messegs--------------------
 leader and region id is [53] [27], Store id is 7 and IP is 172.16.4.58:20160, and Flow valuation is 11.0MB, DB name is mysql, table name is stats_buckets
 --------------------TOP 1 Write region messegs--------------------
