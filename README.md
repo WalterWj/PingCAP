@@ -33,7 +33,7 @@ leader and region id is [53] [27], Store id is 7 and IP is 172.16.4.58:20160, an
 leader and region id is [312] [309], Store id is 6 and IP is 172.16.4.54:20160, and Flow valuation is 61.0MB, DB name is mysql, table name is stats_buckets
 The top Read 1 Region is 27
 The top Write 1 Region is 309
-Please Enter the region you want to split(Such as 1,2,3, default is all):27,26
+Please Enter the region you want to split(Such as 1,2,3, default is None):27,26
 Split Region 27 Command executed 
 Please check the Region 26 is in Top
 ```
