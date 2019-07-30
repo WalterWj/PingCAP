@@ -14,21 +14,24 @@ def main():
     print("The top Write {} Region is {}").format(args.top, w_regions)
     regions = r_regions + "," + w_regions
     _region = raw_input(
-        "Please Enter the region you want to split(Such as 1,2,3, default is all): ") or regions
-    _region = _region.split(",")
-    try:
-        for region_id in _region:
-            if region_id in regions:
-                Split_region(region_id)
-            else:
-                print('Please check the Region {} is in Top').format(region_id)
-    except:
-        print("Please enter the correct content! Such as 1,2,3")
+        "Please Enter the region you want to split(Such as 1,2,3, default is None): ") or None
+    if _region is None:
+        print("Exit")
+    else:
+        _region = _region.split(",")
+        try:
+            for region_id in _region:
+                if region_id in regions:
+                    Split_region(region_id)
+                else:
+                    print('Please check the Region {} is in Top').format(region_id)
+        except:
+            print("Please enter the correct content! Such as 1,2,3")
 
 
 def Split_region(region_id):
     args = parse_args()
-    _split_cmd = "../resources/bin/pd-ctl -u http://{} -d operator add split-region {} --policy=approximate".format(
+    _split_cmd = "../resources/bin/pd-ctl -u http://{} -d operator add split-region {}".format(
         args.pd, region_id)
     try:
         _sc = subprocess.check_output(shlex.split(_split_cmd))
