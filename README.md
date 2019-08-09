@@ -6,7 +6,7 @@
   - TiDB 3.0 版本开始已经有了打散表的命令，可结合使用。
 
 - 使用说明
-  - 需要将脚本放在 tidb-ansible/scripts 目录下
+  - 需要将整个项目 git clone 到 tidb-ansible/ 目录下，脚本中使用的相对路径调用 pd-ctl
   - 可以使用 split_hot_region.py -h 获取帮助
 
 - 使用演示
@@ -46,7 +46,7 @@ Please check the Region 26 is in Top
   - TiDB 3.0 版本开始已经有了打散表的命令，新版本可以忽略该脚本
 
 - 使用说明
-  - 需要将脚本放在 tidb-ansible/scripts 目录下
+  - 需要将整个项目 git clone 到 tidb-ansible/ 目录下，脚本中使用的相对路径调用 pd-ctl
   - 可以使用 split_table_region.py -h 获取帮助
 
 - 使用演示
