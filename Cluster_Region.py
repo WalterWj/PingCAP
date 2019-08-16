@@ -10,7 +10,6 @@ def main():
     pass
 
 
-
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Show the hot region details and splits")
