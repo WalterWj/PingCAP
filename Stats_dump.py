@@ -41,10 +41,12 @@ def main():
         for table_name in info[database_name]:
             stats_name = os.path.join(
                 dir_stats, "{}.{}.json".format(database_name, table_name))
+            stats_name_tmp = os.path.join(
+                'stats', "{}.{}.json".format(database_name, table_name))
             comments = "Table {} schema".format(table_name)
             content = get_table_schema(
                 database_name,
-                table_name) + ";\nLOAD STATS '{}';".format(stats_name)
+                table_name) + ";\nLOAD STATS '{}';".format(stats_name_tmp)
             schema_file(content, comments, file_name)
             content = parser_stats(database_name, table_name)
             stats_file(content, stats_name)
