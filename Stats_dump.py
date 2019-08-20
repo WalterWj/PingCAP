@@ -185,7 +185,7 @@ def mysql_execute(_sql):
             connection.commit()
     except:
         print(
-            "SQL {} execution failed~ \n Please check table exists or not!".format(
+            "SQL {} execution failed~ \n Please check table or database exists or not!".format(
                 _sql))
 
     finally:
