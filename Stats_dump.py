@@ -87,7 +87,7 @@ def stats_file(content, file_name):
 def schema_file(content, comments, file_name):
     try:
         with open(file_name, 'a+', encoding='utf-8') as f:
-            f.write("--- {} \n".format(comments))
+            f.write("-- {} \n".format(comments))
             f.write("{} \n\n".format(content))
         print("Write {} Successful~".format(comments))
     except:
