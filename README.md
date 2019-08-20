@@ -3,11 +3,11 @@
 ## 1. split_hot_region.py
 - 脚本说明
   - 主要是为了快速打散读/写热点
-  - TiDB 3.0 版本开始已经有了打散表的命令，可结合使用。
+  - `TiDB 3.0` 版本开始已经有了打散表的命令，可结合使用。
 
 - 使用说明
-  - 需要将整个项目 git clone 到 tidb-ansible/ 目录下，脚本中使用的相对路径调用 pd-ctl
-  - 可以使用 split_hot_region.py -h 获取帮助
+  - 需要将整个项目 `git clone` 到 `tidb-ansible/` 目录下，脚本中使用的相对路径调用 `pd-ctl`
+  - 可以使用 `split_hot_region.py -h` 获取帮助
 
 - 使用演示
 ```shell
@@ -38,16 +38,16 @@ Split Region 27 Command executed
 Please check the Region 26 is in Top
 ```
 
-**注意:** 在脚本使用过程中，如果不进行内容输入，将会退出脚本。如果想选择性分裂 region，请严格按照提醒输入，如：1,2。
+**注意:** 在脚本使用过程中，如果不进行内容输入，将会退出脚本。如果想选择性分裂 `region`，请严格按照提醒输入，如：1,2。
 
 ## 2. split_table_region.py
 - 脚本说明
-  - 主要为了分裂小表 region
-  - TiDB 3.0 版本开始已经有了打散表的命令，新版本可以忽略该脚本
+  - 主要为了分裂小表 `region`
+  - `TiDB 3.0` 版本开始已经有了打散表的命令，新版本可以忽略该脚本
 
 - 使用说明
-  - 需要将整个项目 git clone 到 tidb-ansible/ 目录下，脚本中使用的相对路径调用 pd-ctl
-  - 可以使用 split_table_region.py -h 获取帮助
+  - 需要将整个项目 `git clone` 到 `tidb-ansible/` 目录下，脚本中使用的相对路径调用 `pd-ctl`
+  - 可以使用 `split_table_region.py -h` 获取帮助
 
 - 使用演示
 ```shell
