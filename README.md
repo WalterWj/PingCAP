@@ -87,7 +87,7 @@ Split Region 26627 Command executed
   + 并且内部方便快速导入表结构和统计信息
 
 * 使用说明
-  + 该脚本需要访问 TIDB 数据库和 TiDB status url，需要安装 pymysql 包：`sudo pip install pymysql`
+  + 该脚本需要访问 `TIDB` 数据库和 `TiDB status url`，需要安装 `pymysql` 包：`sudo pip install pymysql`
   + 可以使用 `Stats_dump.py -h` 获取帮助
   + 最终会生成一个 `tar` 包，解压后，里面有一个 `schema.sql` 文件，里面有 TiDB 的集群信息。
   + 还原统计信息和表结构可以: `mysql -uroot -P4000 -h127.0.0.1 <schema.sql` (注意要在解压缩的目录中执行还原命令)
