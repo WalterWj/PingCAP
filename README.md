@@ -123,4 +123,4 @@ optional arguments:
 * 注意
   + 如果 `-d` 和 `-t` 都没有指定，默认是导出除了系统表以外所有表的统计信息和表结构。
   + 不会导出 `"INFORMATION_SCHEMA", "PERFORMANCE_SCHEMA","mysql", "default"` 库的表结构和统计信息。
-  + 该脚本在 `TiDB 3.0` 中执行没有问题，但是由于 2.1 版本不支持 `show create database if not exists db_name;` 语法，如果导出 2.1 版本的 TIDB 统计信息，需要手动修改脚本 [Stats_dump.py](https://github.com/WalterWj/PingCAP/blob/master/Stats_dump.py#L107) 107 行，将 `if not exists` 删除，即可。
+  

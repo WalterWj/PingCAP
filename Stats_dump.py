@@ -104,7 +104,7 @@ def get_table_schema(database_name, table_name):
 
 def get_databas_schema(database_name):
     content = mysql_execute(
-        "show create database if not exists {}".format(database_name))
+        "show create database {}".format(database_name))
     content = content[0]['Create Database']
 
     return content
