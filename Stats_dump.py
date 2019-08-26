@@ -77,7 +77,7 @@ def parser_stats(database_name, table_name):
 
 def stats_file(content, file_name):
     try:
-        with open(file_name, 'a+', encoding='utf-8') as f:
+        with open(file_name, 'a+') as f:
             json.dump(content, f)
         print(u"File {} written successfully~".format(file_name))
     except:
@@ -86,7 +86,7 @@ def stats_file(content, file_name):
 
 def schema_file(content, comments, file_name):
     try:
-        with open(file_name, 'a+', encoding='utf-8') as f:
+        with open(file_name, 'a+') as f:
             f.write(u"-- {} \n".format(comments))
             f.write(u"{} \n\n".format(content))
         print(u"Write {} Successful~".format(comments))
