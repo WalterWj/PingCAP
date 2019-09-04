@@ -123,4 +123,48 @@ optional arguments:
 * 注意
   + 如果 `-d` 和 `-t` 都没有指定，默认是导出除了系统表以外所有表的统计信息和表结构。
   + 不会导出 `"INFORMATION_SCHEMA", "PERFORMANCE_SCHEMA","mysql", "default"` 库的表结构和统计信息。
+
+## 4. Cluster_Region.py
+
+* 脚本目的
+  + 快速分析当前集群 `region` 是否合并完成
+  + 输出当前可以合并的 `region` 个数
+
+* 使用说明
+  + 注意相对路径，推荐放入 `tidb-ansible/scripts` 目录下
+  + 可以使用 `Cluster_Region.py -h` 获取帮助
   
+* 使用演示
+
+```shell
+[tidb@xiaohou-vm1 scripts]$ ./Cluster_Region.py -h
+usage: Cluster_Region.py [-h] [-pd PD] [-s SIZE] [-k KEYS]
+
+Show the hot region details and splits
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -pd PD      pd status url, default: 127.0.0.1:2379
+  -s SIZE     Region size(MB), default: 20
+  -k KEYS     Region keys, default: 200000
+
+[tidb@xiaohou-vm1 scripts]$ python test.py -pd 10.0.1.16:2379 -s 20 -k 200000
+Total: 21 
+Number of empty regions: 10 
+The regions that can be merged: 11 
+Just does not meet the limit of key: 0 
+Just not meeting the size limit: 0 
+Does not meet all restrictions: 0 
+Parser errors: 0
+```
+
+* 参数说明
+  + `-pd` 后填 PD 的 IP 地址和 status 端口，端口默认是 2379
+  + `-s` 为 region merge 配置 `max-merge-region-size` 大小
+  + `-k` 为 region merge 配置 `max-merge-region-keys` 大小
+
+* 注意
+  + 如果 `The regions that can be merged` 有值，代表着符合 merge 条件，一般是不同表的 region(默认是不会合并)，或者是还没有来得及合并。
+  + 如果 `Just does not meet the limit of key` 或者 `Just not meeting the size limit` 有值，代表 region merge 配置的 `max-merge-region-keys` 或者 `max-merge-region-size` 配置小了，可以考虑调整。
+  + `Does not meet all restrictions` 代表 region merge 条件都不符合
+  + `Parser errors` 代表解析异常，请联系官方。
