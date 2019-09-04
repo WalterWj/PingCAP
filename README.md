@@ -164,6 +164,7 @@ Parser errors: 0
   + `-k` 为 region merge 配置 `max-merge-region-keys` 大小
 
 * 注意
+  + `Number of empty regions` 代表空 region(比如 drop 或者 truncate 之后存留 region)。
   + 如果 `The regions that can be merged` 有值，代表着符合 merge 条件，一般是不同表的 region(默认是不会合并)，或者是还没有来得及合并。
   + 如果 `Just does not meet the limit of key` 或者 `Just not meeting the size limit` 有值，代表 region merge 配置的 `max-merge-region-keys` 或者 `max-merge-region-size` 配置小了，可以考虑调整。
   + `Does not meet all restrictions` 代表 region merge 条件都不符合
