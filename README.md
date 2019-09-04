@@ -169,3 +169,4 @@ Parser errors: 0
   + 如果 `Just does not meet the limit of key` 或者 `Just not meeting the size limit` 有值，代表 region merge 配置的 `max-merge-region-keys` 或者 `max-merge-region-size` 配置小了，可以考虑调整。
   + `Does not meet all restrictions` 代表 region merge 条件都不符合
   + `Parser errors` 代表解析异常，请联系官方。
+  + 如果服务器上有 `jq` 命令，也可以使用 `jq` 解析：`./bin/pd-ctl -d region | jq ".regions | map(select(.approximate_size < 20 and .approximate_keys < 200000)) | length"`
