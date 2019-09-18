@@ -10,7 +10,12 @@ import subprocess
 def main():
     parsers = {}
     args = parse_args()
-    regions = parser_regions(args.pd)
+    if args.file is None:
+        regions = parser_regions(args.pd)
+    else:
+        with open(args.file, 'r') as load_f:
+            regions = json.load(load_f)
+    
     parsers["total"] = regions["count"]
     for region in regions["regions"]:
         if region.get("approximate_size", None) is None or region.get(
@@ -64,6 +69,10 @@ def parse_args():
                         dest="keys",
                         help="Region keys, default: 200000",
                         default="200000")
+    parser.add_argument("-file",
+                        dest="file",
+                        help="Files to parse, default: None",
+                        default=None)
     args = parser.parse_args()
 
     return args

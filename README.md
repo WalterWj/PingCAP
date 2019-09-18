@@ -138,7 +138,7 @@ optional arguments:
 
 ```shell
 [tidb@xiaohou-vm1 scripts]$ ./Cluster_Region.py -h
-usage: Cluster_Region.py [-h] [-pd PD] [-s SIZE] [-k KEYS]
+usage: Cluster_Region.py [-h] [-pd PD] [-s SIZE] [-k KEYS] [-file FILE]
 
 Show the hot region details and splits
 
@@ -147,6 +147,7 @@ optional arguments:
   -pd PD      pd status url, default: 127.0.0.1:2379
   -s SIZE     Region size(MB), default: 20
   -k KEYS     Region keys, default: 200000
+  -file FILE  Files to parse, default: None
 
 [tidb@xiaohou-vm1 scripts]$ python test.py -pd 10.0.1.16:2379 -s 20 -k 200000
 Total: 21 
@@ -156,12 +157,22 @@ Just does not meet the limit of key: 0
 Just not meeting the size limit: 0 
 Does not meet all restrictions: 0 
 Parser errors: 0
+
+[tidb@xiaohou-vm1 scripts]$ python2 Cluster_Region.py -file region.json 
+Total: 2914 
+Number of empty regions: 4 
+The regions that can be merged: 4 
+Just does not meet the limit of key: 11 
+Just not meeting the size limit: 2 
+Does not meet all restrictions: 2893 
+Parser errors: 0
 ```
 
 * 参数说明
   + `-pd` 后填 PD 的 IP 地址和 status 端口，端口默认是 2379
   + `-s` 为 region merge 配置 `max-merge-region-size` 大小
   + `-k` 为 region merge 配置 `max-merge-region-keys` 大小
+  + `-file` 用来指定需要解析的 region 信息文件，优先级高于 `-pd` 配置，如果配置，将优先分析 file 文件内容，不访问 pd
 
 * 注意
   + `Number of empty regions` 代表空 region(比如 drop 或者 truncate 之后存留 region，如果很多，则需要开启跨表 region merge，请联系官方)。
