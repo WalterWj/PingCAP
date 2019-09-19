@@ -1,0 +1,15 @@
+# Windows:
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# python
+test.py
+
+# file
+.DS_Store
+
+# dir
+.idea/
+../.idea/
+
