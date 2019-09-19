@@ -95,16 +95,15 @@ def schema_file(content, comments, file_name):
 
 
 def get_table_schema(database_name, table_name):
-    content = mysql_execute("use {};show create table {}".format(database_name,
-                                                                 table_name))
+    content = mysql_execute("use {};".format(database_name),
+                            "show create table {};".format(table_name))
     content = content[0]['Create Table']
 
     return content
 
 
 def get_databas_schema(database_name):
-    content = mysql_execute(
-        "show create database {}".format(database_name))
+    content = mysql_execute("show create database {}".format(database_name))
     content = content[0]['Create Database']
 
     return content
@@ -133,7 +132,7 @@ def parser_table_info(tables):
 def parser_database_info(database_name):
     info = {}
     for database_name in database_name.split(','):
-        content = mysql_execute("use {};show tables;".format(database_name))
+        content = mysql_execute("use {};".format(database_name), "show tables;")
         tables = []
         for table in content:
             table_name = table["Tables_in_{}".format(database_name)]
@@ -150,7 +149,8 @@ def parser_all_info():
         database_name = database["Database"]
         if database_name not in ["INFORMATION_SCHEMA", "PERFORMANCE_SCHEMA",
                                  "mysql", "default"]:
-            content = mysql_execute("use {};show tables;".format(database_name))
+            content = mysql_execute("use {};".format(database_name),
+                                    "show tables;")
             tables = []
             for table in content:
                 table_name = table["Tables_in_{}".format(database_name)]
@@ -163,11 +163,10 @@ def parser_all_info():
     return info
 
 
-def mysql_execute(_sql):
+def mysql_execute(*_sql):
     args = parse_args()
     host = args.mysql.split(':', 1)[0]
     port = int(args.mysql.split(':', 1)[1])
-
     try:
         connection = pymysql.connect(host=host,
                                      user=args.user,
@@ -180,7 +179,8 @@ def mysql_execute(_sql):
 
     try:
         with connection.cursor() as cursor:
-            cursor.execute(_sql)
+            for sql in _sql:
+                cursor.execute(sql)
             content = cursor.fetchall()
             connection.commit()
     except:
@@ -189,6 +189,7 @@ def mysql_execute(_sql):
                 _sql))
 
     finally:
+        cursor.close()
         connection.close()
 
     return content
