@@ -15,7 +15,7 @@ def main():
     else:
         with open(args.file, 'r') as load_f:
             regions = json.load(load_f)
-    
+
     parsers["total"] = regions["count"]
     for region in regions["regions"]:
         if region.get("approximate_size", None) is None or region.get(
@@ -39,10 +39,11 @@ def main():
             parsers["errors"] = 1 + parsers.get("error", 0)
 
     print(
-        "Total: {} \nNumber of empty regions: {} \nThe regions that can be merged: {} \nJust does not meet the limit of key: {} \nJust not meeting the size limit: {} \nDoes not meet all restrictions: {} \nParser errors: {}".format(
+        "Total: {} \nNumber of empty regions: {} \nThe regions that can be merged: {} \nSize <= {} and Keys > {}: {} \nSize > {} and Keys <= {}: {} \nSize > {} and Keys > {}: {} \nParser errors: {}".format(
             parsers["total"], parsers.get("empty", 0),
-            parsers.get("conform", 0), parsers.get("incompatible-keys", 0),
-            parsers.get("incompatible-size", 0),
+            parsers.get("conform", 0), args.size, args.keys,
+            parsers.get("incompatible-keys", 0), args.size, args.keys,
+            parsers.get("incompatible-size", 0), args.size, args.keys,
             parsers.get("incompatible", 0), parsers.get("error", 0)))
 
 
