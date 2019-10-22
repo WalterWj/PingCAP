@@ -48,8 +48,11 @@ def region_messges():
         args.pd, args.top)
     _r = subprocess.check_output(shlex.split(h_r_region))
     _w = subprocess.check_output(shlex.split(h_w_region))
-    r_regions = json.loads(_r)
-    w_regions = json.loads(_w)
+    try:
+        r_regions = json.loads(_r)
+        w_regions = json.loads(_w)
+    except:
+        print("Json format parsing error, please check if the parameters are correct")
     _r_regions = []
     print('--------------------TOP {} Read region messegs--------------------').format(
         args.top)
