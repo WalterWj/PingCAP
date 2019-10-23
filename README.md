@@ -1,5 +1,7 @@
 # Script specification
 
+**脚本已经迁移到：[Thirdparty-OPS](https://github.com/pingcap/thirdparty-ops)**
+
 ## 1. split_hot_region.py
 - 脚本说明
   - 主要是为了快速打散读/写热点
