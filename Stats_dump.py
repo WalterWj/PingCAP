@@ -9,7 +9,10 @@ import os
 import time
 import tarfile
 import shutil
+import sys
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 def main():
     args = parse_args()
@@ -179,6 +182,7 @@ def mysql_execute(*_sql):
 
     try:
         with connection.cursor() as cursor:
+            cursor.execute("SET NAMES utf8mb4")
             for sql in _sql:
                 cursor.execute(sql)
             content = cursor.fetchall()
