@@ -9,10 +9,10 @@ import os
 import time
 import tarfile
 import shutil
-import sys
+# import sys
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
+# reload(sys)
+# sys.setdefaultencoding('utf-8')
 
 def main():
     args = parse_args()
