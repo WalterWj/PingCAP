@@ -9,6 +9,8 @@ import os
 import time
 import tarfile
 import shutil
+
+## If Python is version 2.7, encoding problems can reload sys configuration
 # import sys
 
 # reload(sys)

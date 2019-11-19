@@ -182,4 +182,53 @@ Parser errors: 0
   + 如果 `Size <= 20 and Keys > 200000` 或者 `Size > 20 and Keys <= 200000` 有值，代表 region merge 配置的 `max-merge-region-keys` 或者 `max-merge-region-size` 配置小了，可以考虑调整。
   + `Size > 20 and Keys > 200000` 代表 region merge 条件都不符合
   + `Parser errors` 代表解析异常，请联系官方。
-  + 如果服务器上有 `jq` 命令，也可以使用 `jq` 解析：`./bin/pd-ctl -d region | jq ".regions | map(select(.approximate_size < 20 and .approximate_keys < 200000)) | length"`
+  + 如果服务器上有 `jq` 命令，也可以使用 `jq` 解析：```./bin/pd-ctl -d region | jq ".regions | map(select(.approximate_size < 20 and .approximate_keys < 200000)) | length"```
+
+
+## 5. Outfile_TiDB.py
+
+* 脚本目的
+  + 方便导出 TIDB 数据为 CSV 格式
+
+* 使用说明
+  + 需要安装 `pymysql`: `pip install pymysql`
+  + 可以使用 `Outfile_TiDB.py -h` 获取帮助
+  
+* 使用演示
+
+```shell
+[tidb@xiaohou-vm1 scripts]$ ./Outfile_TiDB.py -h
+usage: Outfile_TiDB.py [-h] [-tp MYSQL] [-u USER] [-p PASSWORD] [-d DATABASE]
+                       [-t TABLE] [-c COLUMN]
+
+Export data to CSV
+
+optional arguments:
+  -h, --help   show this help message and exit
+  -tp MYSQL    TiDB Port, default: 127.0.0.1:4000
+  -u USER      TiDB User, default: root
+  -p PASSWORD  TiDB Password, default: null
+  -d DATABASE  database name, default: test
+  -t TABLE     Table name, default: test
+  -c COLUMN    Table Column, default: all
+
+[tidb@xiaohou-vm1 scripts]$ python Outfile_TiDB.py
+Write test.test.csv is Successful
+
+[tidb@xiaohou-vm1 scripts]$ cat test.test.csv
+"id","name"
+1,"aa"
+2,"bb"
+3,""
+```
+
+* 参数说明
+  + `-tp` 后填 TIDB 的 IP 地址和 `status` 端口，端口默认是 `10080`
+  + `-u` 为 TIDB 的用户，默认为 `root`
+  + `-p` 为 TiDB 的密码，默认为空
+  + `-d` 指定库名，默认为 `test`
+  + `-t` 指定表名，默认为 `test`
+  + `-c` 指定表字段，默认为 `all`，导出所有
+
+* 注意
+  + 该脚本未经过大量测试
