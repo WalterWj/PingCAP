@@ -220,6 +220,15 @@ Write test.test.csv is Successful
 1,"aa"
 2,"bb"
 3,""
+
+[tidb@xiaohou-vm1 scripts]$ ./Outfile_TiDB.py -c 'id'
+Write test.test.csv is Successful
+
+[tidb@xiaohou-vm1 scripts]$ cat test.test.csv
+"id"
+1
+2
+3
 ```
 
 * 参数说明

@@ -15,20 +15,24 @@ def main():
     args = parse_args()
     if args.column is 'all':
         all_content = mysql_execute("use {};".format(args.database), "select * from {};".format(args.table))
-        try:
-            file_name = "{}.{}.csv".format(args.database, args.table)
-            with open(file_name, 'a+',newline='') as csvfile:
-                fieldnames = ['id', 'name']
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames, quoting=csv.QUOTE_NONNUMERIC)
+        fieldnames = mysql_execute("use {};".format(args.database), "desc {};".format(args.table))
+        fieldnames = [i['Field'] for i in fieldnames]
+    else:
+        all_content = mysql_execute("use {};".format(args.database), "select {} from {};".format(str(args.column),args.table))
+        fieldnames = str(args.column).split(',')
 
-                writer.writeheader()
-                for content in all_content:
-                    writer.writerow(content)
-                print("Write {} is Successful".format(file_name))
+    try:
+        file_name = "{}.{}.csv".format(args.database, args.table)
+        with open(file_name, 'a+',newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames, quoting=csv.QUOTE_NONNUMERIC)
 
-        except all as error:
-            print("Write {} error!,and {}".format(file_name, error))
+            writer.writeheader()
+            for content in all_content:
+                writer.writerow(content)
+            print("Write {} is Successful".format(file_name))
 
+    except all as error:
+        print("Write {} error!,and {}".format(file_name, error))
 
 def mysql_execute(*_sql):
     args = parse_args()
@@ -88,7 +92,7 @@ def parse_args():
                         default="test")                           
     parser.add_argument("-c",
                         dest="column",
-                        help="Table Column, default: all",
+                        help="Table Column, for example: id,name, default: all",
                         default="all")                       
     # parser.add_argument("table", help="Table name")
     args = parser.parse_args()
