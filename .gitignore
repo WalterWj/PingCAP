@@ -8,6 +8,7 @@ test.py
 
 # file
 .DS_Store
+*.csv
 
 # dir
 .idea/
