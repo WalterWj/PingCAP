@@ -4,6 +4,7 @@
 import argparse
 import pymysql
 import csv
+import time
 
 ## If Python is version 2.7, encoding problems can reload sys configuration
 # import sys
@@ -11,30 +12,23 @@ import csv
 # reload(sys)
 # sys.setdefaultencoding('utf-8')
 
+
 def main():
     args = parse_args()
     if args.column is 'all':
-        all_content = mysql_execute("use {};".format(args.database), "select * from {};".format(args.table))
-        fieldnames = mysql_execute("use {};".format(args.database), "desc {};".format(args.table))
+        fieldnames = mysql_execute(None, None, "use {};".format(args.database),
+                                   "desc {};".format(args.table))
         fieldnames = [i['Field'] for i in fieldnames]
+        mysql_execute('csv', fieldnames, "use {};".format(args.database),
+                      "select * from {};".format(args.table))
     else:
-        all_content = mysql_execute("use {};".format(args.database), "select {} from {};".format(str(args.column),args.table))
         fieldnames = str(args.column).split(',')
+        mysql_execute(
+            'csv', fieldnames, "use {};".format(args.database),
+            "select {} from {};".format(str(args.column), args.table))
 
-    try:
-        file_name = "{}.{}.csv".format(args.database, args.table)
-        with open(file_name, 'a+',newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames, quoting=csv.QUOTE_NONNUMERIC)
 
-            writer.writeheader()
-            for content in all_content:
-                writer.writerow(content)
-            print("Write {} is Successful".format(file_name))
-
-    except all as error:
-        print("Write {} error!,and {}".format(file_name, error))
-
-def mysql_execute(*_sql):
+def mysql_execute(file_name=None, fieldnames=[], *_sql):
     args = parse_args()
     host = args.mysql.split(':', 1)[0]
     port = int(args.mysql.split(':', 1)[1])
@@ -46,19 +40,35 @@ def mysql_execute(*_sql):
                                      charset='utf8mb4',
                                      cursorclass=pymysql.cursors.DictCursor)
     except all as error:
-        print("Connect Database is failed~\n",error)
+        print("Connect Database is failed~\n", error)
 
     try:
         with connection.cursor() as cursor:
             cursor.execute("SET NAMES utf8mb4")
             for sql in _sql:
                 cursor.execute(sql)
-            content = cursor.fetchall()
+
+            if file_name is not 'csv':
+                content = cursor.fetchall()
+            else:
+                file_name = "{}.{}.csv".format(args.database, args.table)
+                start_time = time.time()
+                with open(file_name, 'a+', newline='') as csvfile:
+                    writer = csv.DictWriter(csvfile,
+                                            fieldnames=fieldnames,
+                                            quoting=csv.QUOTE_NONNUMERIC)
+                    writer.writeheader()
+                    for content in cursor:
+                        writer.writerow(content)
+                end_time = time.time()
+                print("Write {} is Successful, Cost time is {}".format(
+                    file_name, end_time - start_time))
+
             connection.commit()
-    except:
+    except all as error:
         print(
-            "SQL {} execution failed~ \n Please check table or database exists or not!".format(
-                _sql))
+            "SQL {} execution failed~ \n Please check table or database exists or not!,error: {}".format(
+                _sql), error)
 
     finally:
         cursor.close()
@@ -68,8 +78,7 @@ def mysql_execute(*_sql):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Export data to CSV")
+    parser = argparse.ArgumentParser(description="Export data to CSV")
     parser.add_argument("-tp",
                         dest="mysql",
                         help="TiDB Port, default: 127.0.0.1:4000",
@@ -85,17 +94,19 @@ def parse_args():
     parser.add_argument("-d",
                         dest="database",
                         help="database name, default: test",
-                        default="test")                           
+                        default="test")
     parser.add_argument("-t",
                         dest="table",
                         help="Table name, default: test",
-                        default="test")                           
-    parser.add_argument("-c",
-                        dest="column",
-                        help="Table Column, for example: id,name, default: all",
-                        default="all")                       
-    # parser.add_argument("table", help="Table name")
+                        default="test")
+    parser.add_argument(
+        "-c",
+        dest="column",
+        help="Table Column, for example: id,name, default: all",
+        default="all")
+
     args = parser.parse_args()
+
     return args
 
 
