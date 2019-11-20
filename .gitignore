@@ -6,6 +6,7 @@ Desktop.ini
 # python
 test.py
 test1.py
+test*.py
 
 # file
 .DS_Store
