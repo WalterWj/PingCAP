@@ -3,11 +3,8 @@
 
 import argparse
 import pymysql
-import DBUtils
 import csv
 import time
-from DBUtils.PooledDB import PooledDB
-import threading
 
 ## If Python is version 2.7, encoding problems can reload sys configuration
 # import sys
@@ -15,53 +12,33 @@ import threading
 # reload(sys)
 # sys.setdefaultencoding('utf-8')
 
+
 def main():
     args = parse_args()
     if args.column is 'all':
-        fieldnames = mysql_execute("use {};".format(args.database),
+        fieldnames = mysql_execute(None, None, "use {};".format(args.database),
                                    "desc {};".format(args.table))
         fieldnames = [i['Field'] for i in fieldnames]
-        all_content = mysql_execute("use {};".format(args.database),
+        mysql_execute('csv', fieldnames, "use {};".format(args.database),
                       "select * from {};".format(args.table))
     else:
         fieldnames = str(args.column).split(',')
-        all_content = mysql_execute("use {};".format(args.database),"select {} from {};".format(str(args.column), args.table))
+        mysql_execute(
+            'csv', fieldnames, "use {};".format(args.database),
+            "select {} from {};".format(str(args.column), args.table))
 
-    file_name = "{}.{}.csv".format(args.database, args.table)
 
-    t = write_file(file_name, all_content, fieldnames)
-    for i in range(1000):
-        threading.Thread(target = t).start()
-
-def write_file(file_name, all_content, fieldnames):
-    args = parse_args()
-    start_time = time.time()
-    # with open(file_name, 'a+', newline='') as csvfile:
-    with open(file_name, 'a+') as csvfile:
-        writer = csv.DictWriter(csvfile,
-                                fieldnames=fieldnames,
-                                quoting=csv.QUOTE_NONNUMERIC)
-        writer.writeheader()
-        for content in all_content:
-            writer.writerow(content)
-    end_time = time.time()
-
-    print("Write {} is Successful, Cost time is {}".format(
-        file_name, end_time - start_time))
-
-def mysql_execute(*_sql):
+def mysql_execute(file_name=None, fieldnames=[], *_sql):
     args = parse_args()
     host = args.mysql.split(':', 1)[0]
     port = int(args.mysql.split(':', 1)[1])
     try:
-        pool = PooledDB(pymysql, mincached=10, host=host,
-                        user=args.user,
-                        password=args.password,
-                        port=port,
-                        charset='utf8mb4',
-                        cursorclass=pymysql.cursors.DictCursor)
-        connection = pool.connection()
-
+        connection = pymysql.connect(host=host,
+                                     user=args.user,
+                                     password=args.password,
+                                     port=port,
+                                     charset='utf8mb4',
+                                     cursorclass=pymysql.cursors.DictCursor)
     except all as error:
         print("Connect Database is failed~\n", error)
 
@@ -70,9 +47,24 @@ def mysql_execute(*_sql):
             cursor.execute("SET NAMES utf8mb4")
             for sql in _sql:
                 cursor.execute(sql)
-                content = cursor.fetchall()  
-            connection.commit()
 
+            if file_name is not 'csv':
+                content = cursor.fetchall()
+            else:
+                file_name = "{}.{}.csv".format(args.database, args.table)
+                start_time = time.time()
+                with open(file_name, 'a+', newline='') as csvfile:
+                    writer = csv.DictWriter(csvfile,
+                                            fieldnames=fieldnames,
+                                            quoting=csv.QUOTE_NONNUMERIC)
+                    writer.writeheader()
+                    for content in cursor:
+                        writer.writerow(content)
+                end_time = time.time()
+                print("Write {} is Successful, Cost time is {}".format(
+                    file_name, end_time - start_time))
+
+            connection.commit()
     except all as error:
         print(
             "SQL {} execution failed~ \n Please check table or database exists or not!,error: {}".format(
