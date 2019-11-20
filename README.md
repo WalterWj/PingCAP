@@ -199,7 +199,8 @@ Parser errors: 0
 ```shell
 [tidb@xiaohou-vm1 scripts]$ ./Outfile_TiDB.py -h
 usage: Outfile_TiDB.py [-h] [-tp MYSQL] [-u USER] [-p PASSWORD] [-d DATABASE]
-                       [-t TABLE] [-c COLUMN]
+                       [-t TABLE] [-k FIELD] [-T THREAD] [-B BATCH]
+                       [-c COLUMN]
 
 Export data to CSV
 
@@ -210,21 +211,28 @@ optional arguments:
   -p PASSWORD  TiDB Password, default: null
   -d DATABASE  database name, default: test
   -t TABLE     Table name, default: test
-  -c COLUMN    Table Column, default: all
+  -k FIELD     Table primary key, default: _tidb_rowid
+  -T THREAD    Export thread, default: 20
+  -B BATCH     Export batch size, default: 100000
+  -c COLUMN    Table Column, for example: id,name, default: all
 
 [tidb@xiaohou-vm1 scripts]$ python Outfile_TiDB.py
-Write test.test.csv is Successful
+Write test.test.0.csv is Successful, Cost time is 0.0004699230194091797
+Retrieved select id, name from test where _tidb_rowid >= 1 and _tidb_rowid < 100001
+Exiting Main Thread
 
-[tidb@xiaohou-vm1 scripts]$ cat test.test.csv
+[tidb@xiaohou-vm1 scripts]$ cat test.test.0.csv
 "id","name"
 1,"aa"
 2,"bb"
 3,""
 
 [tidb@xiaohou-vm1 scripts]$ ./Outfile_TiDB.py -c 'id'
-Write test.test.csv is Successful
+Write test.test.0.csv is Successful, Cost time is 0.000797271728515625
+Retrieved select id from test where _tidb_rowid >= 1 and _tidb_rowid < 100001
+Exiting Main Thread
 
-[tidb@xiaohou-vm1 scripts]$ cat test.test.csv
+[tidb@xiaohou-vm1 scripts]$ cat test.test.0.csv
 "id"
 1
 2
@@ -238,6 +246,9 @@ Write test.test.csv is Successful
   + `-d` 指定库名，默认为 `test`
   + `-t` 指定表名，默认为 `test`
   + `-c` 指定表字段，默认为 `all`，导出所有
+  + `-k` 指定主键名，默认使用 `_tidb_rowid`
+  + `-T` 指定并发数，默认使用 20
+  + `-B` 指定每次批量导出数据大小，默认使用 10 万
 
 * 注意
   + 该脚本未经过大量测试

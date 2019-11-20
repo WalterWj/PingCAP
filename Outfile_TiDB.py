@@ -121,8 +121,8 @@ def mysql_execute(mode=None, file_name=None, fieldnames=[], *_sql):
                     for content in cursor:
                         writer.writerow(content)
                 end_time = time.time()
-                # print("Write {} is Successful, Cost time is {}".format(
-                #     file_name, end_time - start_time))
+                print("Write {} is Successful, Cost time is {}".format(
+                    file_name, end_time - start_time))
             
             connection.commit()
 
