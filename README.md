@@ -191,7 +191,7 @@ Parser errors: 0
   + 方便导出 TIDB 数据为 CSV 格式
 
 * 使用说明
-  + 需要安装 `pymysql`: `pip install pymysql`
+  + 需要安装 `pymysql`: `pip install pymysql,queue`
   + 可以使用 `Outfile_TiDB.py -h` 获取帮助
   
 * 使用演示
