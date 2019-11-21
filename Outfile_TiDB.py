@@ -16,7 +16,9 @@ import queue
 # sys.setdefaultencoding('utf-8')
 
 queue = queue.Queue()
+
 # lock = threading.Lock()
+
 
 class outfile_tidb(threading.Thread):
     def __init__(self, mode, file_name, fieldnames, queue):
@@ -33,7 +35,8 @@ class outfile_tidb(threading.Thread):
                 break
 
             try:
-                _cmd = mysql_execute(self.mode, self.file_name, self.fieldnames, _sql)
+                _cmd = mysql_execute(self.mode, self.file_name,
+                                     self.fieldnames, _sql)
                 # lock.acquire()
                 print("Retrieved", _sql)
                 time.sleep(1)
@@ -44,11 +47,13 @@ class outfile_tidb(threading.Thread):
             finally:
                 self.queue.task_done()
 
+
 def main():
     args = parse_args()
     max_id, min_id = parser_id()
     if args.column is "all":
-        fieldnames = mysql_execute(None, None, None, "desc {};".format(args.table))
+        fieldnames = mysql_execute(None, None, None,
+                                   "desc {};".format(args.table))
         fieldnames = [i['Field'] for i in fieldnames]
     else:
         fieldnames = str(args.column).split(',')
@@ -56,29 +61,34 @@ def main():
     thread = int(args.thread)
     for num in range(thread):
         file_name = "{}.{}.{}.csv".format(args.database, args.table, num)
-        t = outfile_tidb('csv', file_name, fieldnames,queue)
+        t = outfile_tidb('csv', file_name, fieldnames, queue)
         t.setDaemon(True)
         t.start()
 
     batch = int(args.batch)
     for _id in range(min_id, max_id, batch):
-        _sql = 'select {} from {} where {} >= {} and {} < {}'.format(', '.join(fieldnames), args.table, args.field, _id, args.field, _id+batch)
+        _sql = 'select {} from {} where {} >= {} and {} < {}'.format(', '.join(
+            fieldnames), args.table, args.field, _id, args.field, _id + batch)
         # print(_sql)
         queue.put(_sql)
 
     queue.join()
-        
+
+
 def parser_id():
     args = parse_args()
     try:
         schema = mysql_execute(None, None, None, "desc {};".format(args.table))
-        content = mysql_execute(None, None, None, "select min({}) as min_id, max({}) as max_id from {};".format(args.field, args.field, args.table))
+        content = mysql_execute(
+            None, None, None,
+            "select min({}) as min_id, max({}) as max_id from {};".format(
+                args.field, args.field, args.table))
         if content[0]['max_id'] is not None:
             max_id = content[0]['max_id'] + 1
             min_id = content[0]['min_id']
         else:
             max_id = 0
-            min_id = 0          
+            min_id = 0
     except all as error:
         print('Error log is: {}'.format(error))
 
@@ -123,7 +133,7 @@ def mysql_execute(mode=None, file_name=None, fieldnames=[], *_sql):
                 end_time = time.time()
                 print("Write {} is Successful, Cost time is {}".format(
                     file_name, end_time - start_time))
-            
+
             connection.commit()
 
     except all as error:
