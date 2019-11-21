@@ -15,42 +15,28 @@ import Queue
 # reload(sys)
 # sys.setdefaultencoding('utf-8')
 
-queue = Queue.Queue()
-
-# lock = threading.Lock()
-
-
-class outfile_tidb(threading.Thread):
-    def __init__(self, mode, file_name, fieldnames, queue):
-        threading.Thread.__init__(self)
-        self.mode = mode
-        self.file_name = file_name
-        self.fieldnames = fieldnames
-        self.queue = queue
-
-    def run(self):
-        while True:
-            _sql = self.queue.get()
-            if _sql is None:
-                break
-
+def outfile_tidb(mode, file_name, fieldnames, queue):
+    while True:
+        if queue.empty():
+            print('exit')
+            break
+        else:
             try:
-                _cmd = mysql_execute(self.mode, self.file_name,
-                                     self.fieldnames, _sql)
-                # lock.acquire()
+                _sql = queue.get()
+                _cmd = mysql_execute(mode, file_name,
+                                    fieldnames, _sql)
                 print("Retrieved", _sql)
-                # time.sleep(1)
-                # print('===========')
-                # lock.release()
+
             except Exception as error:
                 print("Error is {}".format(error))
             finally:
-                self.queue.task_done()
-
+                queue.task_done()
 
 def main():
     args = parse_args()
+    queue = Queue.Queue()
     max_id, min_id = parser_id()
+
     if args.column is "all":
         fieldnames = mysql_execute(None, None, None,
                                    "desc {};".format(args.table))
@@ -58,21 +44,24 @@ def main():
     else:
         fieldnames = str(args.column).split(',')
 
-    thread = int(args.thread)
-    for num in range(thread):
-        file_name = "{}.{}.{}.csv".format(args.database, args.table, num)
-        t = outfile_tidb('csv', file_name, fieldnames, queue)
-        t.setDaemon(True)
-        t.start()
-
     batch = int(args.batch)
     for _id in range(min_id, max_id, batch):
         _sql = 'select {} from {} where {} >= {} and {} < {}'.format(', '.join(
             fieldnames), args.table, args.field, _id, args.field, _id + batch)
-        # print(_sql)
         queue.put(_sql)
 
-    queue.join()
+    thread = int(args.thread)
+    threads = []
+    for num in range(thread):
+        file_name = "{}.{}.{}.csv".format(args.database, args.table, num)
+        t = threading.Thread(target = outfile_tidb, args = ('csv', file_name, fieldnames, queue))
+        threads.append(t)
+    
+    for num in range(thread):
+        threads[num].start()
+    
+    for num in range(thread):
+        threads[num].join()
 
 
 def parser_id():
@@ -153,7 +142,7 @@ def parse_args():
     parser.add_argument("-tp",
                         dest="mysql",
                         help="TiDB Port, default: 127.0.0.1:4000",
-                        default="127.0.0.1:4000")
+                        default="10.0.1.21:4000")
     parser.add_argument("-u",
                         dest="user",
                         help="TiDB User, default: root",
@@ -169,7 +158,7 @@ def parse_args():
     parser.add_argument("-t",
                         dest="table",
                         help="Table name, default: test",
-                        default="test")
+                        default="tt")
     parser.add_argument("-k",
                         dest="field",
                         help="Table primary key, default: _tidb_rowid",
