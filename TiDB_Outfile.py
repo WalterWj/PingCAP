@@ -183,5 +183,7 @@ def parse_args():
 
 
 if __name__ == "__main__":
+    start_time = time.time()
     main()
-    print('Exiting Main Thread')
+    end_time = time.time()
+    print('Exiting Main Thread, Total cost time is {}'.format(end_time-start_time))
