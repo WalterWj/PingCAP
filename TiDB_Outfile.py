@@ -37,9 +37,10 @@ def outfile_tidb(mode, file_name, fieldnames, queue):
         except:
             # queue.task_done()
             print("{} get {}".format(threading.current_thread(), _sql))
+            break
         finally:
-            time.sleep(3)
-            queue.task_done()
+            print("task is successful~")
+        queue.task_done()
 
 def main():
     args = parse_args()
