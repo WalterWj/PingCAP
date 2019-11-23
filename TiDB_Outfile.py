@@ -1,20 +1,30 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-import pymysql
+import MySQLdb
 import argparse
 import time
 import csv
 import os
 import Queue
+import threading
 
 from multiprocessing import Process
 
-## If Python is version 2.7, encoding problems can reload sys configuration
-# import sys
+try:
+    import Queue
+except:
+    import queue
 
-# reload(sys)
-# sys.setdefaultencoding('utf-8')
+## If Python is version 2.7, encoding problems can reload sys configuration
+try:
+    import sys
+
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
+except:
+    pass
+
 
 def outfile_tidb(mode, file_name, fieldnames, queue):
     while True:
@@ -26,7 +36,7 @@ def outfile_tidb(mode, file_name, fieldnames, queue):
                 _sql = queue.get()
                 _cmd = mysql_execute(mode, file_name,
                                     fieldnames, _sql)
-                print("Retrieved", _sql)
+                # print("Retrieved", _sql)
 
             except Exception as error:
                 print("Error is {}".format(error))
@@ -36,7 +46,10 @@ def outfile_tidb(mode, file_name, fieldnames, queue):
 def main():
     args = parse_args()
     queue = Queue.Queue()
-    max_id, min_id = parser_id()
+    get_list_time = time.time()
+    id_list = parser_id()
+    print("get id cost: {}".format(time.time()-get_list_time))
+    # print(id_list)
 
     if args.column is "all":
         fieldnames = mysql_execute(None, None, None,
@@ -46,16 +59,24 @@ def main():
         fieldnames = str(args.column).split(',')
 
     batch = int(args.batch)
-    for _id in range(min_id, max_id, batch):
-        _sql = 'select {} from {} where {} >= {} and {} < {}'.format(', '.join(
-            fieldnames), args.table, args.field, _id, args.field, _id + batch)
+    for list_id in range(0, len(id_list), batch):
+        filter_content = list(id_list[list_id:list_id+batch])
+        if len(filter_content) == 1:
+            filter_content = filter_content[0]['id']
+            _sql = 'select {} from {} where {} = {}'.format(', '.join(
+                fieldnames), args.table, args.field, filter_content)
+        else:   
+            filter_content = str(tuple([i['id'] for i in filter_content]))
+            _sql = 'select {} from {} where {} in {}'.format(', '.join(
+                fieldnames), args.table, args.field, filter_content)
         queue.put(_sql)
 
     thread = int(args.thread)
     threads = []
     for num in range(thread):
         file_name = "{}.{}.{}.csv".format(args.database, args.table, num)
-        t = Process(target = outfile_tidb, args = ('csv', file_name, fieldnames, queue))
+        t = threading.Thread(target = outfile_tidb, args = ('csv', file_name, fieldnames, queue))
+        # t = Process(target = outfile_tidb, args = ('csv', file_name, fieldnames, queue))
         threads.append(t)
     
     for num in range(thread):
@@ -69,20 +90,15 @@ def parser_id():
     args = parse_args()
     try:
         schema = mysql_execute(None, None, None, "desc {};".format(args.table))
-        content = mysql_execute(
+        id_list = mysql_execute(
             None, None, None,
-            "select min({}) as min_id, max({}) as max_id from {};".format(
-                args.field, args.field, args.table))
-        if content[0]['max_id'] is not None:
-            max_id = content[0]['max_id'] + 1
-            min_id = content[0]['min_id']
-        else:
-            max_id = 0
-            min_id = 0
+            "select {} as id from {} {};".format(
+                args.field, args.table, args.where))
+
     except all as error:
         print('Error log is: {}'.format(error))
 
-    return max_id, min_id
+    return id_list
 
 
 def mysql_execute(mode=None, file_name=None, fieldnames=[], *_sql):
@@ -90,24 +106,25 @@ def mysql_execute(mode=None, file_name=None, fieldnames=[], *_sql):
     host = args.mysql.split(':', 1)[0]
     port = int(args.mysql.split(':', 1)[1])
     try:
-        connection = pymysql.connect(host=host,
+        connection = MySQLdb.connect(host=host,
                                      user=args.user,
                                      password=args.password,
                                      port=port,
                                      charset='utf8mb4',
-                                     database=args.database,
-                                     cursorclass=pymysql.cursors.DictCursor)
+                                     database=args.database)
     except all as error:
         print("Connect Database is failed~\n", error)
 
     try:
-        with connection.cursor() as cursor:
+        with connection.cursor(cursorclass=MySQLdb.cursors.SSDictCursor) as cursor:
             cursor.execute("SET NAMES utf8mb4")
             for sql in _sql:
+                # print(sql)
                 cursor.execute(sql)
 
             if mode is not 'csv':
                 content = cursor.fetchall()
+                # print(len(content))
             else:
                 start_time = time.time()
                 with open(file_name, 'a+') as csvfile:
@@ -155,15 +172,15 @@ def parse_args():
     parser.add_argument("-d",
                         dest="database",
                         help="database name, default: test",
-                        default="test")
+                        default="tpch")
     parser.add_argument("-t",
                         dest="table",
                         help="Table name, default: test",
-                        default="tt")
+                        default="orders")
     parser.add_argument("-k",
                         dest="field",
                         help="Table primary key, default: _tidb_rowid",
-                        default="_tidb_rowid")
+                        default="O_ORDERKEY")
     parser.add_argument("-T",
                         dest="thread",
                         help="Export thread, default: 20",
@@ -172,6 +189,10 @@ def parse_args():
                         dest="batch",
                         help="Export batch size, default: 100000",
                         default=100000)
+    parser.add_argument("-w",
+                        dest="where",
+                        help="Filter condition， for example: where id >= 1, default: null",
+                        default="")                
     parser.add_argument(
         "-c",
         dest="column",
@@ -185,6 +206,7 @@ def parse_args():
 
 if __name__ == "__main__":
     start_time = time.time()
+    # parser_id()
     main()
     end_time = time.time()
     print('Exiting Main Thread, Total cost time is {}'.format(end_time-start_time))
