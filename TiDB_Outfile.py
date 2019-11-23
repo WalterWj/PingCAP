@@ -28,20 +28,18 @@ except:
 
 def outfile_tidb(mode, file_name, fieldnames, queue):
     while True:
-        if queue.empty():
-            print('exit')
-            break
-        else:
-            try:
-                _sql = queue.get()
-                _cmd = mysql_execute(mode, file_name,
-                                    fieldnames, _sql)
-                # print("Retrieved", _sql)
+        try:
+            _sql = queue.get(True, 1)
+            _cmd = mysql_execute(mode, file_name,
+                                fieldnames, _sql)
 
-            except Exception as error:
-                print("Error is {}".format(error))
-            finally:
-                queue.task_done()
+            # print("Retrieved", _sql)
+        except:
+            # queue.task_done()
+            print("{} get {}".format(threading.current_thread(), _sql))
+        finally:
+            time.sleep(3)
+            queue.task_done()
 
 def main():
     args = parse_args()
@@ -76,14 +74,16 @@ def main():
     for num in range(thread):
         file_name = "{}.{}.{}.csv".format(args.database, args.table, num)
         t = threading.Thread(target = outfile_tidb, args = ('csv', file_name, fieldnames, queue))
+        # t.daemon = True
         # t = Process(target = outfile_tidb, args = ('csv', file_name, fieldnames, queue))
         threads.append(t)
     
     for num in range(thread):
         threads[num].start()
     
-    for num in range(thread):
-        threads[num].join()
+    queue.join()
+    # for num in range(thread):
+    #     threads[num].join()
 
 
 def parser_id():
