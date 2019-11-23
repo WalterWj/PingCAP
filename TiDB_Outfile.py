@@ -3,11 +3,12 @@
 
 import pymysql
 import argparse
-import threading
 import time
 import csv
 import os
 import Queue
+
+from multiprocessing import Process
 
 ## If Python is version 2.7, encoding problems can reload sys configuration
 # import sys
@@ -54,7 +55,7 @@ def main():
     threads = []
     for num in range(thread):
         file_name = "{}.{}.{}.csv".format(args.database, args.table, num)
-        t = threading.Thread(target = outfile_tidb, args = ('csv', file_name, fieldnames, queue))
+        t = Process(target = outfile_tidb, args = ('csv', file_name, fieldnames, queue))
         threads.append(t)
     
     for num in range(thread):
