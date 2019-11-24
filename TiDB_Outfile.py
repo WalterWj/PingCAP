@@ -129,6 +129,7 @@ def mysql_execute(mode=None, file_name=None, fieldnames=[], *_sql):
                     else:
                         writer.writeheader()
                     content = cursor.fetchall()
+                    print("get content cost time is {}".format(time.time() - start_time))
                     writer.writerows(content)
                 end_time = time.time()
                 print("Write {} is Successful, Cost time is {}".format(
