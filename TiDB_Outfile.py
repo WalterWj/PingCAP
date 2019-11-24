@@ -32,10 +32,7 @@ def outfile_tidb(mode, file_name, fieldnames, queue):
             _sql = queue.get(True, 1)
             _cmd = mysql_execute(mode, file_name,
                                 fieldnames, _sql)
-
-            # print("Retrieved", _sql)
         except:
-            # queue.task_done()
             print("{} get {}".format(threading.current_thread(), _sql))
             break
         finally:
@@ -48,7 +45,6 @@ def main():
     get_list_time = time.time()
     id_list = parser_id()
     print("get id cost: {}".format(time.time()-get_list_time))
-    # print(id_list)
 
     if args.column is "all":
         fieldnames = mysql_execute(None, None, None,
@@ -75,8 +71,6 @@ def main():
     for num in range(thread):
         file_name = "{}.{}.{}.csv".format(args.database, args.table, num)
         t = threading.Thread(target = outfile_tidb, args = ('csv', file_name, fieldnames, queue))
-        # t.daemon = True
-        # t = Process(target = outfile_tidb, args = ('csv', file_name, fieldnames, queue))
         threads.append(t)
     
     for num in range(thread):
@@ -120,12 +114,10 @@ def mysql_execute(mode=None, file_name=None, fieldnames=[], *_sql):
         with connection.cursor(cursorclass=MySQLdb.cursors.SSDictCursor) as cursor:
             cursor.execute("SET NAMES utf8mb4")
             for sql in _sql:
-                # print(sql)
                 cursor.execute(sql)
 
             if mode is not 'csv':
                 content = cursor.fetchall()
-                # print(len(content))
             else:
                 start_time = time.time()
                 with open(file_name, 'a+') as csvfile:
@@ -136,8 +128,8 @@ def mysql_execute(mode=None, file_name=None, fieldnames=[], *_sql):
                         pass
                     else:
                         writer.writeheader()
-                    for content in cursor:
-                        writer.writerow(content)
+                    content = cursor.fetchall()
+                    writer.writerows(content)
                 end_time = time.time()
                 print("Write {} is Successful, Cost time is {}".format(
                     file_name, end_time - start_time))
@@ -207,7 +199,6 @@ def parse_args():
 
 if __name__ == "__main__":
     start_time = time.time()
-    # parser_id()
     main()
     end_time = time.time()
     print('Exiting Main Thread, Total cost time is {}'.format(end_time-start_time))
