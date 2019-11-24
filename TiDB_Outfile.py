@@ -29,6 +29,7 @@ except:
 def outfile_tidb(mode, file_name, fieldnames, queue):
     while True:
         try:
+            _sql = None
             _sql = queue.get(True, 1)
             _cmd = mysql_execute(mode, file_name, fieldnames, _sql)
         except:
