@@ -191,7 +191,7 @@ Parser errors: 0
   + 方便导出 TIDB 数据为 CSV 格式
 
 * 使用说明
-  + 需要安装 `pymysql`: `pip install pymysql,pip install queue`
+  + 需要安装 `MySQLdb`: ` sudo yum -y install mysql-devel;pip install MySQLdb`
   + 可以使用 `Outfile_TiDB.py -h` 获取帮助
   
 * 使用演示
@@ -252,3 +252,4 @@ Exiting Main Thread
 
 * 注意
   + 多少并发就会生成多少文件，如果数据量很少，`-B` 较大，只有一个文件是正常的
+  + `pymysql` 效率要比 `MySQLdb` 慢接近 10 倍，指定返回字典类型要比默认 `tuple` 慢接近 12 倍。
