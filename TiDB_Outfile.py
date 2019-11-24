@@ -154,7 +154,7 @@ def parse_args():
     parser.add_argument("-tp",
                         dest="mysql",
                         help="TiDB Port, default: 127.0.0.1:4000",
-                        default="10.0.1.21:4000")
+                        default="127.0.0.1:4000")
     parser.add_argument("-u",
                         dest="user",
                         help="TiDB User, default: root",
@@ -166,15 +166,15 @@ def parse_args():
     parser.add_argument("-d",
                         dest="database",
                         help="database name, default: test",
-                        default="tpch")
+                        default="test")
     parser.add_argument("-t",
                         dest="table",
                         help="Table name, default: test",
-                        default="orders")
+                        default="test")
     parser.add_argument("-k",
                         dest="field",
                         help="Table primary key, default: _tidb_rowid",
-                        default="O_ORDERKEY")
+                        default="_tidb_rowid")
     parser.add_argument("-T",
                         dest="thread",
                         help="Export thread, default: 20",
