@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-import MySQLdb
+import mysql.connector
 import argparse
 import time
 import csv
 import os
-import Queue
 import threading
 
 from multiprocessing import Process
@@ -49,7 +48,7 @@ def main():
 
     if args.column is "all":
         fieldnames = mysql_execute(_sql="desc {};".format(args.table),
-                                   cursorclass=MySQLdb.cursors.SSDictCursor)
+                                   dictionary=True)
         fieldnames = [i['Field'] for i in fieldnames]
     else:
         fieldnames = str(args.column).split(',')
@@ -101,12 +100,12 @@ def mysql_execute(mode=None,
                   file_name=None,
                   fieldnames=[],
                   _sql="",
-                  cursorclass=None):
+                  dictionary=False):
     args = parse_args()
     host = args.mysql.split(':', 1)[0]
     port = int(args.mysql.split(':', 1)[1])
     try:
-        connection = MySQLdb.connect(host=host,
+        connection = mysql.connector.connect(host=host,
                                      user=args.user,
                                      password=args.password,
                                      port=port,
@@ -116,35 +115,37 @@ def mysql_execute(mode=None,
         print("Connect Database is failed~\n", error)
 
     try:
-        with connection.cursor(cursorclass=cursorclass) as cursor:
-            cursor.execute("SET NAMES utf8mb4")
-            cursor.execute(_sql)
+        cursor = connection.cursor(dictionary=dictionary)
+        # with connection.cursor(dictionary=dictionary) as cursor:
+        cursor.execute("SET NAMES utf8mb4")
+        cursor.execute(_sql)
+        if mode is not 'csv':
+            content = cursor.fetchall()
+        else:
+            start_time = time.time()
+            with open(file_name, 'a+') as csvfile:
+                if os.path.getsize(file_name):
+                    pass
+                else:
+                    writer = csv.DictWriter(csvfile,
+                                            fieldnames=fieldnames,
+                                            quoting=csv.QUOTE_NONNUMERIC)
+                    writer.writeheader()
 
-            if mode is not 'csv':
+                writer = csv.writer(csvfile,
+                                    delimiter=',',
+                                    lineterminator='\n',
+                                    quoting=csv.QUOTE_NONNUMERIC)
                 content = cursor.fetchall()
-            else:
-                start_time = time.time()
-                with open(file_name, 'a+') as csvfile:
-                    if os.path.getsize(file_name):
-                        pass
-                    else:
-                        writer = csv.DictWriter(csvfile,
-                                                fieldnames=fieldnames,
-                                                quoting=csv.QUOTE_NONNUMERIC)
-                        writer.writeheader()
-                    writer = csv.writer(csvfile,
-                                        delimiter=',',
-                                        lineterminator='\n',
-                                        quoting=csv.QUOTE_NONNUMERIC)
-                    content = cursor.fetchall()
-                    print("get content cost time is {}".format(
-                        time.time() - start_time))
-                    writer.writerows(content)
-                end_time = time.time()
-                print("Write {} is Successful, Cost time is {}".format(
-                    file_name, end_time - start_time))
+                print("get content cost time is {}".format(
+                    time.time() - start_time))
+                writer.writerows(content)
 
-            connection.commit()
+            end_time = time.time()
+            print("Write {} is Successful, Cost time is {}".format(
+                file_name, end_time - start_time))
+
+        connection.commit()
 
     except all as error:
         print(
