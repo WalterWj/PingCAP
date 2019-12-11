@@ -191,16 +191,16 @@ Parser errors: 0
   + 方便导出 TIDB 数据为 CSV 格式
 
 * 使用说明
-  + 需要安装 `MySQLdb`: ` sudo yum -y install mysql-devel;pip install MySQLdb`
+  + 需要安装 `MySQLdb`: ` sudo yum -y install mysql-devel;pip install mysql`
   + 可以使用 `Outfile_TiDB.py -h` 获取帮助
   
 * 使用演示
 
 ```shell
 [tidb@xiaohou-vm1 scripts]$ ./Outfile_TiDB.py -h
-usage: Outfile_TiDB.py [-h] [-tp MYSQL] [-u USER] [-p PASSWORD] [-d DATABASE]
-                       [-t TABLE] [-k FIELD] [-T THREAD] [-B BATCH]
-                       [-c COLUMN]
+usage: outfile.py [-h] [-tp MYSQL] [-u USER] [-p PASSWORD] [-d DATABASE]
+                  [-t TABLE] [-k FIELD] [-T THREAD] [-B BATCH] [-w WHERE]
+                  [-c COLUMN]
 
 Export data to CSV
 
@@ -213,13 +213,13 @@ optional arguments:
   -t TABLE     Table name, default: test
   -k FIELD     Table primary key, default: _tidb_rowid
   -T THREAD    Export thread, default: 20
-  -B BATCH     Export batch size, default: 100000
+  -B BATCH     Export batch size, default: 3000
+  -w WHERE     Filter condition， for example: where id >= 1, default: null
   -c COLUMN    Table Column, for example: id,name, default: all
 
 [tidb@xiaohou-vm1 scripts]$ python Outfile_TiDB.py
-Write test.test.0.csv is Successful, Cost time is 0.0004699230194091797
-Retrieved select id, name from test where _tidb_rowid >= 1 and _tidb_rowid < 100001
-Exiting Main Thread
+...
+Exiting Main Thread, Total cost time is 17.1548991203
 
 [tidb@xiaohou-vm1 scripts]$ cat test.test.0.csv
 "id","name"
@@ -248,8 +248,10 @@ Exiting Main Thread
   + `-c` 指定表字段，默认为 `all`，导出所有
   + `-k` 指定主键名，默认使用 `_tidb_rowid`
   + `-T` 指定并发数，默认使用 20
-  + `-B` 指定每次批量导出数据大小，默认使用 10 万
+  + `-B` 指定每次批量导出数据大小，默认使用 3000
+  + `-w` 可加入判断条件，比如 `where id >= 1`，默认为空。
+  + `-c` 可添加导出数据的的列
 
 * 注意
   + 多少并发就会生成多少文件，如果数据量很少，`-B` 较大，只有一个文件是正常的
-  + `pymysql` 效率要比 `MySQLdb` 慢接近 10 倍，指定返回字典类型要比默认 `tuple` 慢接近 12 倍。
+  + 当前只支持单表导出。

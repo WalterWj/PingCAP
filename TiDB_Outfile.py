@@ -139,6 +139,7 @@ def mysql_execute(mode=None,
                 content = cursor.fetchall()
                 print("get content cost time is {}".format(
                     time.time() - start_time))
+                start_time = time.time()
                 writer.writerows(content)
 
             end_time = time.time()
@@ -191,8 +192,8 @@ def parse_args():
                         default=20)
     parser.add_argument("-B",
                         dest="batch",
-                        help="Export batch size, default: 100000",
-                        default=100000)
+                        help="Export batch size, default: 3000",
+                        default=3000)
     parser.add_argument(
         "-w",
         dest="where",
