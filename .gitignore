@@ -11,6 +11,7 @@ test*.py
 # file
 .DS_Store
 *.csv
+*.log
 
 # dir
 .idea/

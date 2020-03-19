@@ -255,3 +255,34 @@ Exiting Main Thread
 * 注意
   + 多少并发就会生成多少文件，如果数据量很少，`-B` 较大，只有一个文件是正常的
   + 当前只支持单表导出。
+
+# 6. analyze 表相关脚本
+
+* 脚本目的
+  + 当我们全量导入一次数据后，表统计信息可能不会非常准确，这个时候最好进行一次全量的 analyze。
+
+* 为了避免安装过多插件，可以使用 shell 脚本 `analyze.sh` 脚本进行统计信息收集，该脚本会对配置的库中所有的表进行 analyze。
+
+* 使用演示
+
+| 相关参数    | 说明                                     |
+| ----------- | ---------------------------------------- |
+| db_name     | 需要 analyze 的库名。                    |
+| db_user     | 数据库登录用户名，默认 root              |
+| db_port     | 数据库登录端口，默认 4000                |
+| db_password | 数据库登录密码，默认 123，注意不能为空。 |
+| db_ip       | 数据库登录 IP，默认为 "127.0.0.1"        |
+| mysql_path  | MySQL 命令的绝对路径                     |
+
+```shell
+nohup ./analyze.sh >>& analyze.log &
+
+cat analyze.log
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Analyze table t1
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Analyze table t2
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Analyze table t3
+mysql: [Warning] Using a password on the command line interface can be insecure.
+```
