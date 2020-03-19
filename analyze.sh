@@ -26,6 +26,10 @@ other(){
 }
 
 main(){
+    # Initialize variables
+    settings;
+    environment;
+    
     # Get all table names in the library
     local table_name=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $db_name -e "show tables;")
     local table_name=($table_name)
@@ -41,6 +45,4 @@ main(){
     done
 }
 
-settings;
-environment;
 main;
