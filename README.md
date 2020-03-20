@@ -267,7 +267,7 @@ Exiting Main Thread
 
 * 为了避免安装过多插件，可以使用 shell 脚本 `analyze.sh` 脚本进行统计信息收集，该脚本会对配置的库中所有的表进行 analyze。
 
-* 使用演示
+* 相关配置说明
 
 | 相关参数    | 说明                                     |
 | ----------- | ---------------------------------------- |
@@ -277,6 +277,8 @@ Exiting Main Thread
 | db_password | 数据库登录密码，默认 123，注意不能为空。 |
 | db_ip       | 数据库登录 IP，默认为 "127.0.0.1"        |
 | mysql_path  | MySQL 命令的绝对路径                     |
+
+* 使用演示
 
 ```shell
 nohup ./analyze.sh >>& analyze.log &
@@ -297,6 +299,18 @@ mysql: [Warning] Using a password on the command line interface can be insecure.
 
 * 使用说明
   * 需要安装 `pymysql` 的包：`sudo pip install pymysql`
+
+* 参数说明：
+
+| 参数 | 说明                                   |
+| ---- | -------------------------------------- |
+| -h   | 显示脚本使用方式                       |
+| -P   | 数据库连接端口，默认 4000              |
+| -p   | 数据库密码，默认为空                   |
+| -H   | 数据库连接 IP，默认为 127.0.0.1        |
+| -u   | 数据库连接账户，默认为 root            |
+| -d   | 需要收集统计信息的库，多个使用逗号隔开 |
+| -t   | 需要收集统计信息的表，多个使用逗号隔开 |
 
 * 使用演示
 
@@ -336,14 +350,3 @@ Analyze table hdata_migrate.ods_risk_operaterecord Sucessful
 Success Analyze all tables
 ```
 
-**参数说明：**
-
-| 参数 | 说明                                   |
-| ---- | -------------------------------------- |
-| -h   | 显示脚本使用方式                       |
-| -P   | 数据库连接端口，默认 4000              |
-| -p   | 数据库密码，默认为空                   |
-| -H   | 数据库连接 IP，默认为 127.0.0.1        |
-| -u   | 数据库连接账户，默认为 root            |
-| -d   | 需要收集统计信息的库，多个使用逗号隔开 |
-| -t   | 需要收集统计信息的表，多个使用逗号隔开 |
