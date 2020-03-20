@@ -329,24 +329,21 @@ Analyze table hdata_migrate.ods_risk_operaterecord Sucessful
 Statistics for all tables in Analyze hdata_migrate library succeeded~
 
 # 更新 test.t1、hdata_migrate.ods_risk_operaterecord 两张表的统计信息
-$ ./Analyze.py -p 123 -d test,hdata_migrate
+$ ./Analyze.py -p 123 -t test.t1,hdata_migrate.ods_risk_operaterecord
 Analyze table test.t1 Sucessful
-Analyze table test.t2 Sucessful
-Analyze table test.t3 Sucessful
-Statistics for all tables in Analyze test library succeeded~
-
+Success Analyze all tables
 Analyze table hdata_migrate.ods_risk_operaterecord Sucessful
-Statistics for all tables in Analyze hdata_migrate library succeeded~
+Success Analyze all tables
 ```
 
 **参数说明：**
 
-|参数|说明|
-|---|---|
-|-h|显示脚本使用方式|
-|-P|数据库连接端口，默认 4000|
-|-p|数据库密码，默认为空|
-|-H|数据库连接 IP，默认为 127.0.0.1|
-|-u|数据库连接账户，默认为 root|
-|-d|需要收集统计信息的库，多个使用逗号隔开|
-|-t|需要收集统计信息的表，多个使用逗号隔开|
+| 参数 | 说明                                   |
+| ---- | -------------------------------------- |
+| -h   | 显示脚本使用方式                       |
+| -P   | 数据库连接端口，默认 4000              |
+| -p   | 数据库密码，默认为空                   |
+| -H   | 数据库连接 IP，默认为 127.0.0.1        |
+| -u   | 数据库连接账户，默认为 root            |
+| -d   | 需要收集统计信息的库，多个使用逗号隔开 |
+| -t   | 需要收集统计信息的表，多个使用逗号隔开 |
