@@ -11,6 +11,10 @@
   - 需要将整个项目 `git clone` 到 `tidb-ansible/` 目录下，脚本中使用的相对路径调用 `pd-ctl`
   - 可以使用 `split_hot_region.py -h` 获取帮助
 
+* 注意事项
+  + 3.0 较新版本，已经有 `INFORMATION_SCHEMA.TIDB_HOT_REGIONS` 视图可以查看集群热点信息。
+  + 在 3.0.10 以上的版本，可以使用浏器打开：`http://{{pd_leader_ip}}:{{pd_status_port}}/dashboard/#/keyvis`, 查看热点图，更加方便直观。
+
 - 使用演示
 ```shell
 # 查看脚本说明
@@ -286,3 +290,63 @@ mysql: [Warning] Using a password on the command line interface can be insecure.
 Analyze table t3
 mysql: [Warning] Using a password on the command line interface can be insecure.
 ```
+
+**如果习惯使用 Python 脚本，可以使用 Analyze.py 脚本**
+
+* Analyze.py 脚本和 Analyze.sh 脚本目的一样，功能会更加丰富一点，可以指定表进行 Analyze。
+
+* 使用说明
+  * 需要安装 `pymysql` 的包：`sudo pip install pymysql`
+
+* 使用演示
+
+```shell
+# 可以使用 -h 进行帮助查看
+$ ./Analyze.py -h
+usage: Analyze.py [-h] [-P PORT] [-H MYSQL] [-u USER] [-p PASSWORD]
+                  [-d DATABASE] [-t TABLES]
+
+Update table statistics manually
+
+optional arguments:
+  -h, --help   show this help message and exit
+  -P PORT      tidb port, default: 4000
+  -H MYSQL     Database address, default: 127.0.0.1
+  -u USER      Database account, default: root
+  -p PASSWORD  Database password, default: null
+  -d DATABASE  Database name, for example: test,test1, default: None
+  -t TABLES    Table name (database.table), for example: test.test,test.test2,
+               default: None
+
+# 更新 test、hdata_migrate 两个库中所有表的统计信息
+$ ./Analyze.py -p 123 -d test,hdata_migrate
+Analyze table test.t1 Sucessful
+Analyze table test.t2 Sucessful
+Analyze table test.t3 Sucessful
+Statistics for all tables in Analyze test library succeeded~
+
+Analyze table hdata_migrate.ods_risk_operaterecord Sucessful
+Statistics for all tables in Analyze hdata_migrate library succeeded~
+
+# 更新 test.t1、hdata_migrate.ods_risk_operaterecord 两张表的统计信息
+$ ./Analyze.py -p 123 -d test,hdata_migrate
+Analyze table test.t1 Sucessful
+Analyze table test.t2 Sucessful
+Analyze table test.t3 Sucessful
+Statistics for all tables in Analyze test library succeeded~
+
+Analyze table hdata_migrate.ods_risk_operaterecord Sucessful
+Statistics for all tables in Analyze hdata_migrate library succeeded~
+```
+
+**参数说明：**
+
+|参数|说明|
+|---|---|
+|-h|显示脚本使用方式|
+|-P|数据库连接端口，默认 4000|
+|-p|数据库密码，默认为空|
+|-H|数据库连接 IP，默认为 127.0.0.1|
+|-u|数据库连接账户，默认为 root|
+|-d|需要收集统计信息的库，多个使用逗号隔开|
+|-t|需要收集统计信息的表，多个使用逗号隔开|
