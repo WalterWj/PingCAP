@@ -20,6 +20,12 @@ except:
     pass
 
 def main():
+    '''
+    When no library name or table name is entered, Analyze operation is not performed.
+    When you enter a library name without entering a table name, all tables in the library are analyzed.
+    When no library name is entered, but a table name is entered, the entered table is analyzed.
+    No other cases will be analyzed.
+    '''
     args = parse_args()
     table, db = args.tables, args.database
     if table is None and db is None:
@@ -28,7 +34,7 @@ def main():
         for _db in db.split(","):
             analyze_db(_db)
             print("Statistics for all tables in Analyze {} library succeeded~\n".format(_db))
-    elif table is not None and  db is "test":
+    elif table is not None and  db is None:
         for db_table in table.split(","):
             _db, _table = db_table.split(".")[0], db_table.split(".")[1]
             analyze_table(_db, _table)
@@ -83,6 +89,7 @@ def mysql_execute(*_sql):
     return content
 
 def parse_args():
+    # Incoming parameters
     parser = argparse.ArgumentParser(
         description="Update table statistics manually")
     parser.add_argument("-P",
@@ -104,8 +111,8 @@ def parse_args():
     parser.add_argument(
         "-d",
         dest="database",
-        help="Database name, for example: test,test1, default: test",
-        default="test")
+        help="Database name, for example: test,test1, default: None",
+        default=None)
     parser.add_argument(
         "-t",
         dest="tables",
