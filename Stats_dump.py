@@ -11,10 +11,13 @@ import tarfile
 import shutil
 
 ## If Python is version 2.7, encoding problems can reload sys configuration
-# import sys
+try:
+    import sys
 
-# reload(sys)
-# sys.setdefaultencoding('utf-8')
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
+except:
+    pass
 
 def main():
     args = parse_args()
