@@ -102,7 +102,7 @@ def parse_args():
     parser.add_argument("-p",
                         dest="password",
                         help="Database password, default: null",
-                        default="null")
+                        default="")
     parser.add_argument(
         "-d",
         dest="database",
