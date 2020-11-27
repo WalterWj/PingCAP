@@ -17,3 +17,5 @@ test*.py
 .idea/
 ../.idea/
 
+# sql file
+*.sql

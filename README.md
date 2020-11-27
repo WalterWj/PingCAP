@@ -350,3 +350,62 @@ Analyze table hdata_migrate.ods_risk_operaterecord Sucessful
 Success Analyze all tables
 ```
 
+# 6. analyze 表相关脚本
+
+* 脚本目的
+  + 一次性备份 TiDB/MySQL 所有账户、密码权限
+
+* 使用说明
+  * 需要安装 `pymysql` 的包：`sudo pip install pymysql`
+
+* 参数说明：
+
+| 参数 | 说明                                   |
+| ---- | -------------------------------------- |
+| -h   | 显示脚本使用方式                       |
+| -P   | 数据库连接端口，默认 4000              |
+| -p   | 数据库密码，默认为空                   |
+| -H   | 数据库连接 IP，默认为 127.0.0.1        |
+| -u   | 数据库连接账户，默认为 root            |
+| -d   | 需要收集统计信息的库，多个使用逗号隔开 |
+| -t   | 需要收集统计信息的表，多个使用逗号隔开 |
+
+* 使用演示
+
+```shell
+./out_user.py -h
+usage: out_user.py [-h] [-P PORT] [-H MYSQL] [-u USER] [-p PASSWORD]
+
+Update table statistics manually
+
+optional arguments:
+  -h, --help   show this help message and exit
+  -P PORT      tidb port, default: 4000
+  -H MYSQL     Database address, default: 127.0.0.1
+  -u USER      Database account, default: root
+  -p PASSWORD  Database password, default: null
+
+# 导出所有账户密码：
+./out_user.py   
+User: 'root'@'%' is OK
+User: 'tidb'@'%' is OK
+User: 'tidb1'@'%' is OK
+
+# 结果：
+cat tidb_users.sql       
+-- 'root'@'%' 
+create user 'root'@'%'; 
+update mysql.user set `authentication_string`='' where user='root' and host='%'; 
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+
+-- 'tidb'@'%' 
+create user 'tidb'@'%'; 
+update mysql.user set `authentication_string`='' where user='tidb' and host='%'; 
+GRANT USAGE ON *.* TO 'tidb'@'%';
+
+-- 'tidb1'@'%' 
+create user 'tidb1'@'%'; 
+update mysql.user set `authentication_string`='*445AD2DF92D86C174C647766EB0146B6E70341CB' where user='tidb1' and host='%'; 
+GRANT USAGE ON *.* TO 'tidb1'@'%';
+
+```
