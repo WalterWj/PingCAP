@@ -350,7 +350,7 @@ Analyze table hdata_migrate.ods_risk_operaterecord Sucessful
 Success Analyze all tables
 ```
 
-# 6. 导出数据库账号密码相关脚本
+# 7. 导出数据库账号密码相关脚本
 
 * 脚本目的
   + 一次性备份 TiDB/MySQL 所有账户、密码权限
