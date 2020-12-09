@@ -46,22 +46,18 @@ def mysql_execute(*_sql):
     args = parse_args()
     config = {
         "host": args.mysql,
-        "port": args.port,
+        "port": int(args.port),
         "user": args.user,
         "password": args.password,
         "charset": 'utf8mb4',
         "cursorclass": pymysql.cursors.DictCursor
     }
 
+    connection = pymysql.connect(**config)
+    cursor = connection.cursor()
     try:
-        connection = pymysql.connect(**config)
-    except:
-        print("Connect Database is failed~")
-
-    try:
-        with connection.cursor() as cursor:
-            for sql in _sql:
-                cursor.execute(sql)
+        for sql in _sql:
+            cursor.execute(sql)
             content = cursor.fetchall()
             connection.commit()
     except:
