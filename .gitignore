@@ -12,6 +12,7 @@ test*.py
 .DS_Store
 *.csv
 *.log
+.vscode
 
 # dir
 .idea/
