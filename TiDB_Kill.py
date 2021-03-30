@@ -26,6 +26,7 @@ def main():
         if ct >= 100:
             ack = "yes"
 
+
 def mysql_execute():
     # Connect to MySQL and execute SQL commands
     args = parse_args()
@@ -46,17 +47,19 @@ def mysql_execute():
         content = cursor.fetchall()
         connection.commit()
     except:
-        print(
-            "SQL {} execution failed~"
-            .format(_sql))
+        print("SQL {} execution failed~".format(_sql))
     finally:
         print(args.advertiseAddress, args.advertisePort)
         config_c = json.loads(content[0][0])
-        if config_c["advertise-address"].strip() == args.advertiseAddress and str(config_c["port"]).strip() == args.advertisePort:
+        if config_c["advertise-address"].strip(
+        ) == args.advertiseAddress and str(
+                config_c["port"]).strip() == args.advertisePort:
             print("The TiDB IP is {}".format(config_c["advertise-address"]))
             print("The TiDB IP Port is {}".format(config_c["port"]))
             sql_kill = "kill tidb {}".format(args.sessionId)
-            _ct = str(input("Will execute: {}, y/n (default:yes)".format(sql_kill))) or "y"
+            _ct = str(
+                input("Will execute: {}, y/n (default:yes)".format(
+                    sql_kill))) or "y"
             if _ct == "y":
                 cursor.execute(sql_kill)
             else:
@@ -74,8 +77,7 @@ def mysql_execute():
 
 def parse_args():
     # Incoming parameters
-    parser = argparse.ArgumentParser(
-        description="Kill TiDB session by id")
+    parser = argparse.ArgumentParser(description="Kill TiDB session by id")
     parser.add_argument("-P",
                         dest="port",
                         help="tidb port, default: 4000",
