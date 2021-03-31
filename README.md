@@ -409,3 +409,56 @@ update mysql.user set `authentication_string`='*445AD2DF92D86C174C647766EB0146B6
 GRANT USAGE ON *.* TO 'tidb1'@'%';
 
 ```
+
+# 连接指定 tidb 节点执行 kill session 操作
+
+* 脚本目的
+  + 由于 TiDB 有多个 TiDB-server 节点，在某些情况下，会有只能通过负载均衡的方式连接数据库的情况。 
+  + 有些操作，需要登录对应服务器进行执行，比如发现某个节点有一个大 SQL，这个时候就需要登录对应节点，使用 `kill tidb session_id;` 来 kill 对应 SQL。
+  + 本脚本就是为了解决相关情况下，可以快速链接对应节点来执行 kill 命令。
+
+* 使用说明
+  * 需要安装 `pymysql` 的包：`sudo pip install pymysql`
+  * 默认最多重试 100 次，如果 100 次尝试连接都没有连接到对应节点，则自动退出。
+
+* 参数说明：
+
+| 参数 | 说明                                                     |
+| ---- | -------------------------------------------------------- |
+| -h   | 显示脚本使用方式                                         |
+| -P   | 数据库连接端口，默认 4000                                |
+| -p   | 数据库密码，默认为空                                     |
+| -H   | 数据库连接 IP，默认为 127.0.0.1                          |
+| -u   | 数据库连接账户，默认为 root                              |
+| -a   | 需要执行 kill 命令的 TiDB server 节点 IP，默认为空       |
+| -ap  | 需要执行 kill 命令的 TiDB server 节点的端口，默认为 4000 |
+| -id  | 需要 kill 的 session id                                  |
+
+* 使用示例
+
+```shell
+# help 命令
+./TiDB_Kill.py -h
+usage: TiDB_Kill.py [-h] [-P PORT] [-H MYSQL] [-u USER] [-p PASSWORD]
+                    [-a ADVERTISEADDRESS] [-ap ADVERTISEPORT] [-id SESSIONID]
+
+Kill TiDB session by id
+
+optional arguments:
+  -h, --help           show this help message and exit
+  -P PORT              tidb port, default: 4000
+  -H MYSQL             Database address, default: 127.0.0.1
+  -u USER              Database account, default: root
+  -p PASSWORD          Database password, default: null
+  -a ADVERTISEADDRESS  TiDB Address, default: null
+  -ap ADVERTISEPORT    TiDB Port, default: 4000
+  -id SESSIONID        session id, default: null
+
+# 使用
+./TiDB_Kill.py -p 123456 -a 172.16.5.120 -ap 4000 -id 1
+172.16.5.120 4000
+The TiDB IP is 172.16.5.120
+The TiDB IP Port is 4000
+Will execute: kill tidb 1, y/n (default:yes)
+Connection retries 1
+```
