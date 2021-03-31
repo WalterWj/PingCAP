@@ -410,7 +410,7 @@ GRANT USAGE ON *.* TO 'tidb1'@'%';
 
 ```
 
-# 连接指定 tidb 节点执行 kill session 操作
+# 8. 连接指定 tidb 节点执行 kill session 操作
 
 * 脚本目的
   + 由于 TiDB 有多个 TiDB-server 节点，在某些情况下，会有只能通过负载均衡的方式连接数据库的情况。 
