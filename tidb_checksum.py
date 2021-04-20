@@ -12,16 +12,16 @@ def main():
     t_table = mysql_execute(u_dbname, t_sql)
     for tb in t_table:
         tb_name = tb["Tables_in_{}".format(dbname)]
-        fchecksum = check_table(dbname, tb_name, "f")
-        tchecksum = check_table(dbname, tb_name, "t")
-        if fchecksum == tchecksum:
+        fkvs, fbytes = check_table(dbname, tb_name, "f")
+        tkvs, tbytes = check_table(dbname, tb_name, "t")
+        if fbytes == tbytes and fkvs == tkvs:
             print(
-                "Checksum is sucessfull, DB name is:{},Table name is:{}, Checksum is {}"
-                .format(dbname, tb_name, fchecksum))
+                "Checksum is sucessfull, DB name is:{},Table name is:{}, bytes is {}, kvs is {}"
+                .format(dbname, tb_name, fbytes, fkvs))
         else:
             print(
-                "Checksum is failed,DB name is:{},Table name is:{}, f-Checksum is {}, t-Checksum is {}"
-                .format(dbname, tb_name, fchecksum, tchecksum))
+                "Checksum is failed,DB name is:{},Table name is:{}, f-bytes is {}, f-kvs is {}, t-bytes is {}, t-kvs is {}"
+                .format(dbname, tb_name, fbytes, fkvs, tbytes, tkvs))
 
 
 def check_table(db_name, table_name, mode):
@@ -32,10 +32,10 @@ def check_table(db_name, table_name, mode):
     else:
         checksum = mysql_execute1("use {}".format(db_name), set_scan,
                                   check_sql)
+    Total_kvs = checksum[0]["Total_kvs"]
+    Total_bytes = checksum[0]["Total_bytes"]
 
-    checksum = checksum[0]["Total_bytes"]
-
-    return checksum
+    return Total_kvs, Total_bytes
 
 
 def mysql_execute1(*_sql):
@@ -116,11 +116,10 @@ def parse_args():
                         dest="tpassword",
                         help="Database password, default: null",
                         default="")
-    parser.add_argument(
-        "-d",
-        dest="database",
-        help="Database name, for example: test, default: None",
-        default=None)
+    parser.add_argument("-d",
+                        dest="database",
+                        help="Database name, for example: test, default: None",
+                        default=None)
     args = parser.parse_args()
 
     return args
