@@ -119,13 +119,7 @@ def parse_args():
     parser.add_argument(
         "-d",
         dest="database",
-        help="Database name, for example: test,test1, default: None",
-        default=None)
-    parser.add_argument(
-        "-t",
-        dest="tables",
-        help=
-        "Table name (database.table), for example: test.test,test.test2, default: None",
+        help="Database name, for example: test, default: None",
         default=None)
     args = parser.parse_args()
 
