@@ -33,7 +33,7 @@ def check_table(db_name, table_name, mode):
         checksum = mysql_execute1("use {}".format(db_name), set_scan,
                                   check_sql)
 
-    checksum = checksum[0]["Checksum_crc64_xor"]
+    checksum = checksum[0]["Total_bytes"]
 
     return checksum
 
