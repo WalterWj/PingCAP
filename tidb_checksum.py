@@ -16,11 +16,11 @@ def main():
         tkvs, tbytes = check_table(dbname, tb_name, "t")
         if fbytes == tbytes and fkvs == tkvs:
             print(
-                "Checksum is sucessfull, DB name is:{},Table name is:{}, bytes is {}, kvs is {}"
+                "Check successful, DB name is:{},Table name is:{}, bytes is {}, kvs is {}"
                 .format(dbname, tb_name, fbytes, fkvs))
         else:
             print(
-                "Checksum is failed,DB name is:{},Table name is:{}, f-bytes is {}, f-kvs is {}, t-bytes is {}, t-kvs is {}"
+                "Check failed,DB name is:{},Table name is:{}, f-bytes is {}, f-kvs is {}, t-bytes is {}, t-kvs is {}"
                 .format(dbname, tb_name, fbytes, fkvs, tbytes, tkvs))
 
 
