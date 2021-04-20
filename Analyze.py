@@ -52,6 +52,7 @@ def analyze_db(db_name):
 
 def mysql_execute(*_sql):
     # Connect to MySQL and execute SQL commands
+    global content
     args = parse_args()
     config = {
         "host": args.mysql,
