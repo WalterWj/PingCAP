@@ -25,7 +25,7 @@ def main():
 
 
 def check_table(db_name, table_name, mode):
-    check_sql = "admin checksum table {}".format(table_name)
+    check_sql = "admin checksum table `{}`".format(table_name)
     set_scan = "set tidb_checksum_table_concurrency = 200"
     if mode == "f":
         checksum = mysql_execute("use {}".format(db_name), set_scan, check_sql)
