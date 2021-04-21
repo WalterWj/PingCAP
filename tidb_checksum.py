@@ -4,6 +4,7 @@
 import argparse
 import pymysql
 import time
+import json
 
 
 def main():
@@ -11,10 +12,14 @@ def main():
     dbname = args.database
     u_dbname, t_sql = "use {}".format(dbname), "show tables;"
     t_table = mysql_execute(u_dbname, t_sql)
+    tso = mysql_execute1("select checkPoint from tidb_binlog.checkpoint")
+    tso = json.loads(tso[0]["checkPoint"])
+    ftso = tso["ts-map"]["primary-ts"]
+    ttso = tso["ts-map"]["secondary-ts"]
     for tb in t_table:
         tb_name = tb["Tables_in_{}".format(dbname)]
-        fkvs, fbytes = check_table(dbname, tb_name, "f")
-        tkvs, tbytes = check_table(dbname, tb_name, "t")
+        fkvs, fbytes = check_table(dbname, tb_name, ftso, "f")
+        tkvs, tbytes = check_table(dbname, tb_name, ttso,"t")
         if fbytes == tbytes and fkvs == tkvs:
             print(
                 "Check successful, DB name is:{},Table name is:{}, bytes is {}, kvs is {}"
@@ -25,10 +30,10 @@ def main():
                 .format(dbname, tb_name, fbytes, fkvs, tbytes, tkvs))
 
 
-def check_table(db_name, table_name, mode):
+def check_table(db_name, table_name, tso, mode):
     check_sql = "admin checksum table `{}`".format(table_name)
     set_scan = "set tidb_checksum_table_concurrency = 200"
-    set_time = "set tidb_snapshot='{}'".format(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+    set_time = "set tidb_snapshot='{}'".format(tso)
     if mode == "f":
         checksum = mysql_execute("use {}".format(db_name), set_time, set_scan, check_sql)
     else:
@@ -104,7 +109,7 @@ def parse_args():
     parser.add_argument("-pf",
                         dest="fpassword",
                         help="Database password, default: null",
-                        default="")
+                        default="123456")
     parser.add_argument(
         "-ht",
         dest="tmysql",
@@ -117,11 +122,11 @@ def parse_args():
     parser.add_argument("-pt",
                         dest="tpassword",
                         help="Database password, default: null",
-                        default="")
+                        default="123456")
     parser.add_argument("-d",
                         dest="database",
                         help="Database name, for example: test, default: None",
-                        default=None)
+                        default="tmp")
     args = parser.parse_args()
 
     return args
