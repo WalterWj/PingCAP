@@ -3,6 +3,7 @@
 
 import argparse
 import pymysql
+import time
 
 
 def main():
@@ -27,10 +28,11 @@ def main():
 def check_table(db_name, table_name, mode):
     check_sql = "admin checksum table `{}`".format(table_name)
     set_scan = "set tidb_checksum_table_concurrency = 200"
+    set_time = "set tidb_snapshot='{}'".format(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     if mode == "f":
-        checksum = mysql_execute("use {}".format(db_name), set_scan, check_sql)
+        checksum = mysql_execute("use {}".format(db_name), set_time, set_scan, check_sql)
     else:
-        checksum = mysql_execute1("use {}".format(db_name), set_scan,
+        checksum = mysql_execute1("use {}".format(db_name), set_time, set_scan,
                                   check_sql)
     Total_kvs = checksum[0]["Total_kvs"]
     Total_bytes = checksum[0]["Total_bytes"]
