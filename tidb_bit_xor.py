@@ -37,7 +37,7 @@ def main():
 
 
 def check_table(db_name, bit_xor_sql, tso, mode):
-    tso = "2021-04-23 22:18:09"
+    # tso = "2021-04-23 22:18:09"
     set_scan = "set tidb_distsql_scan_concurrency = 200"
     set_time = "set tidb_snapshot='{}'".format(tso)
     if mode == "f":
