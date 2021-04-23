@@ -83,6 +83,7 @@ def mysql_execute(mode, *_sql):
     connection = pymysql.connect(**config)
     cursor = connection.cursor()
     cursor.execute("set group_concat_max_len=10240000")
+    cursor.execute("set tidb_isolation_read_engines='tikv, tidb';")
     for sql in _sql:
         cursor.execute(sql)
         content = cursor.fetchall()
