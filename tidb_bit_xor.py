@@ -18,7 +18,7 @@ def main():
     ttso = tso["ts-map"]["secondary-ts"]
     for tb in t_table:
         tb_name = tb["Tables_in_{}".format(dbname)]
-        _sql = "select table_name, concat('select bit_xor(CAST(CRC32(concat_ws(',group_concat('`',`COLUMN_NAME`,'`'),', concat(',group_concat('ISNULL(`',`COLUMN_NAME`,'`)'),'))) AS unsigned)) as b_xor from ', table_name) as _sql from `COLUMNS` where TABLE_SCHEMA='{}' and table_name='{}' and data_type != 'json'".format(dbname, tb_name)
+        _sql = "select table_name, concat('select bit_xor(CAST(CRC32(concat_ws(',group_concat('`',`COLUMN_NAME`,'`'),', concat(',group_concat('ISNULL(`',`COLUMN_NAME`,'`)'),'))) AS unsigned)) as b_xor from ', table_name) as _sql from `COLUMNS` where TABLE_SCHEMA='{}' and table_name='{}' and data_type != 'json' group by table_name".format(dbname, tb_name)
         _sql = mysql_execute("f", "use INFORMATION_SCHEMA", _sql)
         bit_xor_sql = _sql[0]["_sql"]
         f_bit_xor = check_table(dbname, bit_xor_sql, ftso, "f")
