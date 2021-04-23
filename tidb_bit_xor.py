@@ -21,8 +21,11 @@ def main():
         _sql = "select table_name, concat('select bit_xor(CAST(CRC32(concat_ws(',group_concat('`',`COLUMN_NAME`,'`'),', concat(',group_concat('ISNULL(`',`COLUMN_NAME`,'`)'),'))) AS unsigned)) as b_xor from ', table_name) as _sql from `COLUMNS` where TABLE_SCHEMA='{}' and table_name='{}' and data_type != 'json' group by table_name".format(dbname, tb_name)
         _sql = mysql_execute("f", "use INFORMATION_SCHEMA", _sql)
         bit_xor_sql = _sql[0]["_sql"]
+        start = time.time()
         f_bit_xor = check_table(dbname, bit_xor_sql, ftso, "f")
         t_bit_xor = check_table(dbname, bit_xor_sql, ttso, "t")
+        end = time.time()
+        print("Cost time is:{}".format(end-start))
         if f_bit_xor == t_bit_xor:
             print("Check sucessfull, DB name is: {}, Table name is:{}, bit xor:{}".format(
                 dbname, tb_name, f_bit_xor))
@@ -76,10 +79,12 @@ def mysql_execute(mode, *_sql):
 
     connection = pymysql.connect(**config)
     cursor = connection.cursor()
+    cursor.execute("set group_concat_max_len=10240000")
     for sql in _sql:
         cursor.execute(sql)
         content = cursor.fetchall()
         connection.commit()
+    connection.close()
 
     return content
 
