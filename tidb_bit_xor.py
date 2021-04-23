@@ -26,15 +26,14 @@ def main():
         f_bit_xor = check_table(dbname, bit_xor_sql, ftso, "f")
         t_bit_xor = check_table(dbname, bit_xor_sql, ttso, "t")
         end = time.time()
-        print("Cost time is:{}".format(end - start))
         if f_bit_xor == t_bit_xor:
             print(
-                "Check sucessfull, DB name is: {}, Table name is:{}, bit xor:{}"
-                .format(dbname, tb_name, f_bit_xor))
+                "Check sucessfull, Cost time is {}, DB name is: {}, Table name is:{}, bit xor:{}"
+                .format(end - start, dbname, tb_name, f_bit_xor))
         else:
             print(
-                "Check failed,DB name is:{},Table name is:{}, f-bit_xor is:{}, t-bit_xor is:{}"
-                .format(dbname, tb_name, f_bit_xor, t_bit_xor))
+                "Check failed, Cost time is {}, DB name is:{},Table name is:{}, f-bit_xor is:{}, t-bit_xor is:{}"
+                .format(end - start, dbname, tb_name, f_bit_xor, t_bit_xor))
 
 
 def check_table(db_name, bit_xor_sql, tso, mode):
