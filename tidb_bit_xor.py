@@ -18,21 +18,24 @@ def main():
     ttso = tso["ts-map"]["secondary-ts"]
     for tb in t_table:
         tb_name = tb["Tables_in_{}".format(dbname)]
-        _sql = "select table_name, concat('select bit_xor(CAST(CRC32(concat_ws(',group_concat('`',`COLUMN_NAME`,'`'),', concat(',group_concat('ISNULL(`',`COLUMN_NAME`,'`)'),'))) AS unsigned)) as b_xor from ', table_name) as _sql from `COLUMNS` where TABLE_SCHEMA='{}' and table_name='{}' and data_type != 'json' group by table_name".format(dbname, tb_name)
+        _sql = "select table_name, concat('select bit_xor(CAST(CRC32(concat_ws(',group_concat('`',`COLUMN_NAME`,'`'),', concat(',group_concat('ISNULL(`',`COLUMN_NAME`,'`)'),'))) AS unsigned)) as b_xor from ', table_name) as _sql from `COLUMNS` where TABLE_SCHEMA='{}' and table_name='{}' and data_type != 'json' group by table_name".format(
+            dbname, tb_name)
         _sql = mysql_execute("f", "use INFORMATION_SCHEMA", _sql)
         bit_xor_sql = _sql[0]["_sql"]
         start = time.time()
         f_bit_xor = check_table(dbname, bit_xor_sql, ftso, "f")
         t_bit_xor = check_table(dbname, bit_xor_sql, ttso, "t")
         end = time.time()
-        print("Cost time is:{}".format(end-start))
+        print("Cost time is:{}".format(end - start))
         if f_bit_xor == t_bit_xor:
-            print("Check sucessfull, DB name is: {}, Table name is:{}, bit xor:{}".format(
-                dbname, tb_name, f_bit_xor))
+            print(
+                "Check sucessfull, DB name is: {}, Table name is:{}, bit xor:{}"
+                .format(dbname, tb_name, f_bit_xor))
         else:
             print(
                 "Check failed,DB name is:{},Table name is:{}, f-bit_xor is:{}, t-bit_xor is:{}"
                 .format(dbname, tb_name, f_bit_xor, t_bit_xor))
+
 
 def check_table(db_name, bit_xor_sql, tso, mode):
     set_scan = "set tidb_distsql_scan_concurrency = 200"
