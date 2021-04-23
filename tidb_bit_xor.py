@@ -17,37 +17,32 @@ def main():
     ftso = tso["ts-map"]["primary-ts"]
     ttso = tso["ts-map"]["secondary-ts"]
     for tb in t_table:
-        t_schema = "desc {}".format(tb)
-        t_schema = mysql_execute("f", dbname, t_schema)
-        print(t_schema)
         tb_name = tb["Tables_in_{}".format(dbname)]
-        fkvs, fbytes = check_table(dbname, tb_name, ftso, "f")
-        tkvs, tbytes = check_table(dbname, tb_name, ttso, "t")
-        # if fbytes == tbytes and fkvs == tkvs:
-        if fkvs == tkvs:
-            print(
-                "Check successful, DB name is:{},Table name is:{}, bytes is {}, kvs is {}"
-                .format(dbname, tb_name, fbytes, fkvs))
+        _sql = "select table_name, concat('select bit_xor(CAST(CRC32(concat_ws(',group_concat('`',`COLUMN_NAME`,'`'),', concat(',group_concat('ISNULL(`',`COLUMN_NAME`,'`)'),'))) AS unsigned)) as b_xor from ', table_name) as _sql from `COLUMNS` where TABLE_SCHEMA='{}' and table_name='{}' and data_type != 'json'".format(dbname, tb_name)
+        _sql = mysql_execute("f", "use INFORMATION_SCHEMA", _sql)
+        bit_xor_sql = _sql[0]["_sql"]
+        f_bit_xor = check_table(dbname, bit_xor_sql, ftso, "f")
+        t_bit_xor = check_table(dbname, bit_xor_sql, ttso, "t")
+        if f_bit_xor == t_bit_xor:
+            print("Check sucessfull, DB name is: {}, Table name is:{}, bit xor:{}".format(
+                dbname, tb_name, f_bit_xor))
         else:
             print(
-                "Check failed,DB name is:{},Table name is:{}, f-bytes is {}, f-kvs is {}, t-bytes is {}, t-kvs is {}"
-                .format(dbname, tb_name, fbytes, fkvs, tbytes, tkvs))
+                "Check failed,DB name is:{},Table name is:{}, f-bit_xor is:{}, t-bit_xor is:{}"
+                .format(dbname, tb_name, f_bit_xor, t_bit_xor))
 
-
-def check_table(db_name, table_name, tso, mode):
-    check_sql = "admin checksum table `{}`".format(table_name)
-    set_scan = "set tidb_checksum_table_concurrency = 200"
+def check_table(db_name, bit_xor_sql, tso, mode):
+    set_scan = "set tidb_distsql_scan_concurrency = 200"
     set_time = "set tidb_snapshot='{}'".format(tso)
     if mode == "f":
-        checksum = mysql_execute("f", "use {}".format(db_name), set_time,
-                                 set_scan, check_sql)
+        bit_xor = mysql_execute("f", "use {}".format(db_name), set_time,
+                                set_scan, bit_xor_sql)
     else:
-        checksum = mysql_execute("t", "use {}".format(db_name), set_time,
-                                 set_scan, check_sql)
-    Total_kvs = checksum[0]["Total_kvs"]
-    Total_bytes = checksum[0]["Total_bytes"]
+        bit_xor = mysql_execute("t", "use {}".format(db_name), set_time,
+                                set_scan, bit_xor_sql)
+    bit_xor = bit_xor[0]["b_xor"]
 
-    return Total_kvs, Total_bytes
+    return bit_xor
 
 
 def mysql_execute(mode, *_sql):
