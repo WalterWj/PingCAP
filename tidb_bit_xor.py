@@ -28,11 +28,11 @@ def main():
         end = time.time()
         if f_bit_xor == t_bit_xor:
             print(
-                "Check sucessfull, Cost time is {}, DB name is: {}, Table name is:{}, bit xor:{}"
+                "Check sucessfull, Cost time is {}s, DB name is: {}, Table name is:{}, bit xor:{}"
                 .format(end - start, dbname, tb_name, f_bit_xor))
         else:
             print(
-                "Check failed, Cost time is {}, DB name is:{},Table name is:{}, f-bit_xor is:{}, t-bit_xor is:{}"
+                "Check failed, Cost time is {}s, DB name is:{},Table name is:{}, f-bit_xor is:{}, t-bit_xor is:{}"
                 .format(end - start, dbname, tb_name, f_bit_xor, t_bit_xor))
 
 
