@@ -90,7 +90,7 @@ def main():
 
 def check_table(db_name, bit_xor_sql, tso, mode):
     args = parse_args()
-    tso = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    # tso = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     set_engine = "set tidb_isolation_read_engines='tikv, tidb';"
     set_scan = "set tidb_distsql_scan_concurrency = {}".format(args.thread)
     set_time = "set tidb_snapshot='{}'".format(tso)
