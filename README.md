@@ -462,3 +462,66 @@ The TiDB IP Port is 4000
 Will execute: kill tidb 1, y/n (default:yes)
 Connection retries 1
 ```
+
+# 9. 数据库同步，数据对比
+
+* 脚本目的
+  + 当 TiDB 集群做了主从同步，有时候需要对上下游数据做数据对比
+
+* 使用说明
+  * 需要安装 `pymysql` 的包：`sudo pip install pymysql`
+  * 默认对比内容
+
+* 参数说明：
+
+| 参数 | 说明                                                                                                                             |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------- |
+| -h   | 显示脚本使用方式                                                                                                                 |
+| -hf  | 上游数据库 IP 和 端口，默认 127.0.0.1:4000                                                                                       |
+| -uf  | 上游数据库密码，默认为 root                                                                                                      |
+| -pf  | 上游数据库密码，默认为空                                                                                                         |
+| -ht  | 下游数据库 IP 和 端口，默认 127.0.0.1:4000                                                                                       |
+| -ut  | 下游数据库密码，默认为 root                                                                                                      |
+| -pt  | 下游数据库密码，默认为空                                                                                                         |
+| -d   | 需要对比的库，逗号隔开，比如 tmp,test                                                                                            |
+| -t   | 需要对比的表，比如 tmp.t1,tmp.t2，当前未开发                                                                                     |
+| -T   | 数据对比并行度，默认 200，约小越慢，约大，TiKV CPU 使用率越高                                                                    |
+| -m   | 同步类型，比如，tidb,tidb: 第一个是上游数据库类型，逗号后是下游数据库类型。tidb,tidb 可以直接对比，有一个为 mysql 的，需要无 udi |
+| -v   | 对比算法，默认为 xor，对比的是数据内容，可以配置 count，对比的是 kv 数。只能用 `-m tidb,tidb` 模式下                             |
+
+* 使用示例
+
+```shell
+# help 命令
+ ./sync_diff.py -h
+usage: sync_diff.py [-h] [-hf FMYSQL] [-uf FUSER] [-pf FPASSWORD] [-ht TMYSQL]
+                    [-ut TUSER] [-pt TPASSWORD] [-d DATABASE] [-t TABLES]
+                    [-T THREAD] [-m MODE] [-v VERIFICATION]
+
+Check tables
+
+optional arguments:
+  -h, --help       show this help message and exit
+  -hf FMYSQL       Source database address and port, default: 127.0.0.1:4000
+  -uf FUSER        Source database account, default: root
+  -pf FPASSWORD    Source database password, default: null
+  -ht TMYSQL       Target database address and port, default: 127.0.0.1:4000
+  -ut TUSER        Target database account, default: root
+  -pt TPASSWORD    Target database password, default: null
+  -d DATABASE      Database name, for example: test,tmp, default: None
+  -t TABLES        Table name, for example: tmp.t,tmp.t1, default: None
+  -T THREAD        set tidb_distsql_scan_concurrency, for example: 200,
+                   default: 200
+  -m MODE          Compare database types, for example: tidb,mysql, default:
+                   tidb,tidb
+  -v VERIFICATION  Verification method, for example: checksum, default: xor
+
+# 使用
+./sync_diff.py -d tmp,tmp1
+Check sucessfull, Cost time is 0.014266729354858398s, DB name is: tmp, Table name is:t, bit xor:2175547901
+Check sucessfull, Cost time is 0.012514114379882812s, DB name is: tmp, Table name is:t1, bit xor:2393996321
+Check sucessfull, Cost time is 0.012146711349487305s, DB name is: tmp, Table name is:t2, bit xor:1665511314
+Check sucessfull, Cost time is 0.012310504913330078s, DB name is: tmp, Table name is:t_json, bit xor:0
+Check sucessfull, Cost time is 0.01268911361694336s, DB name is: tmp, Table name is:order, bit xor:0
+Check sucessfull, Cost time is 0.013577938079833984s, DB name is: tmp1, Table name is:test, bit xor:0
+```

@@ -95,15 +95,19 @@ def check_table(db_name, bit_xor_sql, tso, mode):
     set_scan = "set tidb_distsql_scan_concurrency = {}".format(args.thread)
     set_time = "set tidb_snapshot='{}'".format(tso)
     _mode = args.mode.split(',', 1)
-    if mode == "f" and _mode[0].strip() == "tidb":
+    if mode == "f" and _mode[0].strip() == "tidb" and _mode[1].strip(
+    ) == "tidb":
         content = mysql_execute(mode, "use {}".format(db_name), set_time,
                                 set_scan, set_engine, bit_xor_sql)
-    elif mode == "f" and _mode[0].strip() == "mysql":
+    elif mode == "f" and _mode[0].strip() == "mysql" or _mode[1].strip(
+    ) == "mysql":
         content = mysql_execute(mode, "use {}".format(db_name), bit_xor_sql)
-    elif mode == "t" and _mode[1].strip() == "tidb":
+    elif mode == "t" and _mode[0].strip() == "tidb" and _mode[1].strip(
+    ) == "tidb":
         content = mysql_execute(mode, "use {}".format(db_name), set_time,
                                 set_scan, set_engine, bit_xor_sql)
-    elif mode == "t" and _mode[1].strip() == "mysql":
+    elif mode == "t" and _mode[0].strip() == "mysql" or _mode[1].strip(
+    ) == "mysql":
         content = mysql_execute(mode, "use {}".format(db_name), bit_xor_sql)
     else:
         print("unknown~")
