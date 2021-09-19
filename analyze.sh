@@ -17,7 +17,7 @@ environment(){
 
 analyze(){
     # Execute analyze table command and run in background
-    analyze_table=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $d_name -e "analyze TABLE $1;")
+    analyze_table=$(($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $d_name -e "analyze TABLE $1;") >> analyze.log &)
 }
 
 other(){
