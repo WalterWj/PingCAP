@@ -2,7 +2,7 @@
 
 settings(){
     # Configuration db information
-    db_name='test'
+    # db_name='test'
     db_user='root'
     db_port=4000
     # Note: Password cannot be empty ！！！！
@@ -17,7 +17,7 @@ environment(){
 
 analyze(){
     # Execute analyze table command and run in background
-    analyze_table=$(($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $db_name -e "analyze TABLE $table_names;") >> analyze.log &)
+    analyze_table=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $d_name -e "analyze TABLE $1;")
 }
 
 other(){
@@ -30,19 +30,36 @@ main(){
     settings;
     environment;
     
-    # Get all table names in the library
-    local table_name=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $db_name -e "show tables;")
-    local table_name=($table_name)
+    # Get all databases in the instance
+    local db_name=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $db_name -e "show databases;")
+    local db_name=($db_name)
 
-    # Loop analyze all tables
-    for ((i=1;i<${#table_name[@]};i++))
+    echo '==================begin==================' >> analyze.log
+    current_time=`date +"%Y-%m-%d %H:%M:%S"`
+    echo $current_time >> analyze.log
+
+    # Loop analyze all tables of each database    
+    for ((i=1;i<${#db_name[@]};i++))
     do
-      local table_names=${table_name[i]}
-      echo "Analyze table "$table_names
-      analyze;
+      local d_name=${db_name[i]}
+      if  [ "$d_name" != "test" ] && [ "$d_name" != "mysql" ] && [ "$d_name" != "INFORMATION_SCHEMA" ] && [ "$d_name" != "METRICS_SCHEMA" ] && [ "$d_name" != "PERFORMANCE_SCHEMA" ];then
+        echo "----use database: $d_name----" >> analyze.log
+
+        local table_name=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $d_name -e "show tables;")
+        local table_name=($table_name)
+        for ((j=1;j<${#table_name[@]};j++))
+        do
+          local table_names=${table_name[j]}
+          echo "analyze table：$table_names" >> analyze.log
+          analyze $table_names;
+          # other;
+          sleep 0.5
+        done
+      fi
       # other;
-      sleep 0.5
+      #sleep 0.5
     done
+    echo '==================end==================' >> analyze.log
 }
 
 main;
