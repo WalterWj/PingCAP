@@ -2,7 +2,6 @@
 
 settings(){
     # Configuration db information
-    # db_name='test'
     db_user='tidb'
     db_port=4000
     # Note: Password cannot be empty ！！！！
@@ -26,7 +25,7 @@ environment(){
 
 analyze(){
     # Execute analyze table command and run in background
-    analyze_table=$(($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $_dbname -e "analyze TABLE $_table_names;"))
+    analyze_table=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $_dbname -e "analyze TABLE $_table_names;")
 }
 
 other(){
@@ -35,11 +34,11 @@ other(){
 }
 
 parserDb(){
-    echo "$mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password"
+    # parser db
     local db_sql="select distinct TABLE_SCHEMA from information_schema.tables where TABLE_SCHEMA not in ('METRICS_SCHEMA','PERFORMANCE_SCHEMA','INFORMATION_SCHEMA','mysql') and TABLE_TYPE <> 'VIEW';"
-    dbName=$($mysql_path -u $db_user -h $db_ip -P $db_port -p$db_password -e "$db_sql")
-    echo "$mysql_path -u $db_user -h $db_ip -P $db_port -p$db_password -e "
-    # echo $dbName
+    dbName=$($mysql_path -u $db_user -h $db_ip -P $db_port -p$db_password -e \"$db_sql\")
+    echo $dbNmae
+    echo "$mysql_path -u $db_user -h $db_ip -P $db_port -p$db_password -e \"$db_sql\""
 }
 
 main(){
@@ -50,18 +49,16 @@ main(){
     parserDb;
     # local dbName=($dbName)
     # # Get all db names in the library
-    # for ((i=1;i<${#dbName[@]};i++))
-    # do
+    # for ((i=1;i<${#dbName[@]};i++)); do
     #     local _dbname=${dbName[i]}
-    #     local table_name=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $_dbname -e "show tables;")
+    #     local table_name=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $_dbname -e "select distinct TABLE_NAME from information_schema.tables where TABLE_SCHEMA ='$_dbname' and TABLE_TYPE <> 'VIEW';")
     #     local table_name=($table_name)
     #     # Get all db names in the library
-    #     for ((i=1;i<${#table_name[@]};i++))
-    #     do
+    #     for ((i=1;i<${#table_name[@]};i++)); do
     #       local _table_names=${table_name[i]}
     #       analyze;
     #       echo "Analyze table $_dbname.$_table_names Sucess~"
-    #       sleep 0.5
+    #       sleep 2
     #     done
     # done
 }
