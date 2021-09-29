@@ -2,46 +2,65 @@
 
 settings(){
     # Configuration db information
-    db_name='test'
+    # db_name='test'
     db_user='tidb'
     db_port=4000
     # Note: Password cannot be empty ！！！！
-    db_password="tidb@123!@#"
+    db_password="'tidb@123!@#'"
     db_ip='127.0.0.1'
+    # export password
+    # MYSQL_PWD=$db_password
 }
 
 environment(){
     # Configure MySQL command path
-    mysql_path='/usr/local/bin/mysql'
+    mysql_path='/usr/local/mysql/bin/mysql'
+    ## if dumpling is not exist,then exit
+    if [ ! -f $mysql_path ];then
+        echo "$mysql_path is not exist~"
+        exit 8
+    else
+        echo "$mysql_path is exist~"
+    fi
 }
 
 analyze(){
     # Execute analyze table command and run in background
-    analyze_table=$(($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $db_name -e "analyze TABLE $table_names;") >> analyze.log &)
+    analyze_table=$(($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $_dbname -e "analyze TABLE $_table_names;"))
 }
 
 other(){
     # This place can be adjusted according to demand.
     echo "Can be developed separately"
 }
+parserDb(){
+    local db_sql="select distinct TABLE_SCHEMA from information_schema.tables where TABLE_SCHEMA not in ('METRICS_SCHEMA','PERFORMANCE_SCHEMA','INFORMATION_SCHEMA','mysql') and TABLE_TYPE <> 'VIEW';"
+    dbName=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password -e "$db_sql")
+    echo "$mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password "
+    echo $dbName
+}
 
 main(){
     # Initialize variables
     settings;
     environment;
-    
-    # Get all table names in the library
-    local table_name=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $db_name -e "show tables;")
-    local table_name=($table_name)
-
-    # Loop analyze all tables
-    for ((i=1;i<${#table_name[@]};i++))
+    # parser database
+    parserDb;
+    local dbName=($dbName)
+    # Get all db names in the library
+    for ((i=1;i<${#dbName[@]};i++))
     do
-      local table_names=${table_name[i]}
-      echo "Analyze table "$table_names
-      analyze;
-      # other;
-      sleep 0.5
+        local _dbname=${dbName[i]}
+        local table_name=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $_dbname -e "show tables;")
+        local table_name=($table_name)
+        # Get all db names in the library
+        for ((i=1;i<${#table_name[@]};i++))
+        do
+          local _table_names=${table_name[i]}
+          analyze;
+          echo "Analyze table $_dbname.$_table_names Sucess~"
+          sleep 0.5
+        done
     done
 }
 
