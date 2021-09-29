@@ -31,6 +31,7 @@ binaryPath='/home/db/tidbmgt/tools'
 binaryFile=$binaryPath'/dumpling'
 _dir='/tidbbackup/fmtfx_back/'
 
+## if dumpling is not exist,then exit
 if [ ! -f $binaryFile ];then
     echo "$binaryFile is not exist~"
     exit 8
