@@ -28,7 +28,15 @@ logFile='/tidbbackup/fmtfx_back/main.log'
 logTime=$(date '+%Y/%m/%d %H:%M:%S')
 ## binary dir
 binaryPath='/home/db/tidbmgt/tools'
+binaryFile=$binaryPath+'/dumping'
 _dir='/tidbbackup/fmtfx_back/'
+
+if [ ! -f $binaryFile  ];then
+    echo "$binaryFile is not exist~"
+else
+    echo "$binaryFile  exist~"
+fi
+
 }
 
 mkDir(){

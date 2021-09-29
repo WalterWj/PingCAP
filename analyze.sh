@@ -3,10 +3,10 @@
 settings(){
     # Configuration db information
     db_name='test'
-    db_user='root'
+    db_user='tidb'
     db_port=4000
     # Note: Password cannot be empty ！！！！
-    db_password="123"
+    db_password="tidb@123!@#"
     db_ip='127.0.0.1'
 }
 
