@@ -33,11 +33,13 @@ other(){
     # This place can be adjusted according to demand.
     echo "Can be developed separately"
 }
+
 parserDb(){
+    echo "$mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password"
     local db_sql="select distinct TABLE_SCHEMA from information_schema.tables where TABLE_SCHEMA not in ('METRICS_SCHEMA','PERFORMANCE_SCHEMA','INFORMATION_SCHEMA','mysql') and TABLE_TYPE <> 'VIEW';"
-    dbName=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password -e "$db_sql")
-    echo "$mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password "
-    echo $dbName
+    dbName=$($mysql_path -u $db_user -h $db_ip -P $db_port -p$db_password -e "$db_sql")
+    echo "$mysql_path -u $db_user -h $db_ip -P $db_port -p$db_password -e "
+    # echo $dbName
 }
 
 main(){
@@ -46,22 +48,22 @@ main(){
     environment;
     # parser database
     parserDb;
-    local dbName=($dbName)
-    # Get all db names in the library
-    for ((i=1;i<${#dbName[@]};i++))
-    do
-        local _dbname=${dbName[i]}
-        local table_name=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $_dbname -e "show tables;")
-        local table_name=($table_name)
-        # Get all db names in the library
-        for ((i=1;i<${#table_name[@]};i++))
-        do
-          local _table_names=${table_name[i]}
-          analyze;
-          echo "Analyze table $_dbname.$_table_names Sucess~"
-          sleep 0.5
-        done
-    done
+    # local dbName=($dbName)
+    # # Get all db names in the library
+    # for ((i=1;i<${#dbName[@]};i++))
+    # do
+    #     local _dbname=${dbName[i]}
+    #     local table_name=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $_dbname -e "show tables;")
+    #     local table_name=($table_name)
+    #     # Get all db names in the library
+    #     for ((i=1;i<${#table_name[@]};i++))
+    #     do
+    #       local _table_names=${table_name[i]}
+    #       analyze;
+    #       echo "Analyze table $_dbname.$_table_names Sucess~"
+    #       sleep 0.5
+    #     done
+    # done
 }
 
 main;
