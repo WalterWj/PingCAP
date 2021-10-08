@@ -265,13 +265,12 @@ Exiting Main Thread
 * 脚本目的
   + 当我们全量导入一次数据后，表统计信息可能不会非常准确，这个时候最好进行一次全量的 analyze。
 
-* 为了避免安装过多插件，可以使用 shell 脚本 `analyze.sh` 脚本进行统计信息收集，该脚本会对配置的库中所有的表进行 analyze。
+* 为了避免安装过多插件，可以使用 shell 脚本 `analyze.sh` 脚本进行统计信息收集，该脚本会对非 'METRICS_SCHEMA','PERFORMANCE_SCHEMA','INFORMATION_SCHEMA','mysql' 库中的所有表进行 analyze。
 
 * 相关配置说明
 
 | 相关参数    | 说明                                     |
 | ----------- | ---------------------------------------- |
-| db_name     | 需要 analyze 的库名。                    |
 | db_user     | 数据库登录用户名，默认 root              |
 | db_port     | 数据库登录端口，默认 4000                |
 | db_password | 数据库登录密码，默认 123，注意不能为空。 |
@@ -282,15 +281,15 @@ Exiting Main Thread
 
 ```shell
 nohup ./analyze.sh >>& analyze.log &
-
-cat analyze.log
+cat analyze.log 
+nohup: ignoring input
+/usr/local/mysql/bin/mysql is exist~
 mysql: [Warning] Using a password on the command line interface can be insecure.
-Analyze table t1
 mysql: [Warning] Using a password on the command line interface can be insecure.
-Analyze table t2
 mysql: [Warning] Using a password on the command line interface can be insecure.
-Analyze table t3
+Analyze table jh_test.t Sucess~
 mysql: [Warning] Using a password on the command line interface can be insecure.
+Analyze table jh_test.t1 Sucess~
 ```
 
 **如果习惯使用 Python 脚本，可以使用 Analyze.py 脚本**
@@ -475,19 +474,19 @@ Connection retries 1
 * 参数说明：
 
 | 参数 <div style="width:30px"> | 说明                                                                                                                             |
-| :----: | -------------------------------------------------------------------------------------------------------------------------------- |
-| -h   | 显示脚本使用方式                                                                                                                 |
-| -hf  | 上游数据库 IP 和 端口，默认 127.0.0.1:4000                                                                                       |
-| -uf  | 上游数据库密码，默认为 root                                                                                                      |
-| -pf  | 上游数据库密码，默认为空                                                                                                         |
-| -ht  | 下游数据库 IP 和 端口，默认 127.0.0.1:4000                                                                                       |
-| -ut  | 下游数据库密码，默认为 root                                                                                                      |
-| -pt  | 下游数据库密码，默认为空                                                                                                         |
-| -d   | 需要对比的库，逗号隔开，比如 tmp,test                                                                                            |
-| -t   | 需要对比的表，比如 tmp.t1,tmp.t2，当前未开发                                                                                     |
-| -T   | 数据对比并行度，默认 200，约小越慢，约大，TiKV CPU 使用率越高                                                                    |
-| -m   | 同步类型，比如，tidb,tidb: 第一个是上游数据库类型，逗号后是下游数据库类型。tidb,tidb 可以直接对比，有一个为 mysql 的，需要无 udi |
-| -v   | 对比算法，默认为 xor，对比的是数据内容，可以配置 count，对比的是 kv 数。只能用 `-m tidb,tidb` 模式下                             |
+| :---------------------------: | -------------------------------------------------------------------------------------------------------------------------------- |
+|              -h               | 显示脚本使用方式                                                                                                                 |
+|              -hf              | 上游数据库 IP 和 端口，默认 127.0.0.1:4000                                                                                       |
+|              -uf              | 上游数据库密码，默认为 root                                                                                                      |
+|              -pf              | 上游数据库密码，默认为空                                                                                                         |
+|              -ht              | 下游数据库 IP 和 端口，默认 127.0.0.1:4000                                                                                       |
+|              -ut              | 下游数据库密码，默认为 root                                                                                                      |
+|              -pt              | 下游数据库密码，默认为空                                                                                                         |
+|              -d               | 需要对比的库，逗号隔开，比如 tmp,test                                                                                            |
+|              -t               | 需要对比的表，比如 tmp.t1,tmp.t2，当前未开发                                                                                     |
+|              -T               | 数据对比并行度，默认 200，约小越慢，约大，TiKV CPU 使用率越高                                                                    |
+|              -m               | 同步类型，比如，tidb,tidb: 第一个是上游数据库类型，逗号后是下游数据库类型。tidb,tidb 可以直接对比，有一个为 mysql 的，需要无 udi |
+|              -v               | 对比算法，默认为 xor，对比的是数据内容，可以配置 count，对比的是 kv 数。只能用 `-m tidb,tidb` 模式下                             |
 
 * 使用示例
 
@@ -524,4 +523,39 @@ Check sucessfull, Cost time is 0.012146711349487305s, DB name is: tmp, Table nam
 Check sucessfull, Cost time is 0.012310504913330078s, DB name is: tmp, Table name is:t_json, bit xor:0
 Check sucessfull, Cost time is 0.01268911361694336s, DB name is: tmp, Table name is:order, bit xor:0
 Check sucessfull, Cost time is 0.013577938079833984s, DB name is: tmp1, Table name is:test, bit xor:0
+```
+
+# 10. 备份相关脚本
+
+* 脚本目的
+  + dumpling 备份脚本
+
+* 为了避免安装过多插件，可以使用 shell 脚本 `dumpling.sh` 脚本进行统计信息收集，该脚本会对非 'METRICS_SCHEMA','PERFORMANCE_SCHEMA','INFORMATION_SCHEMA','mysql' 库中的所有表进行备份
+
+* 相关配置说明
+
+| 相关参数   | 说明                                     |
+| ---------- | ---------------------------------------- |
+| user       | 数据库登录用户名，默认 root              |
+| port       | 数据库登录端口，默认 4000                |
+| password   | 数据库登录密码，默认 123，注意不能为空。 |
+| host       | 数据库登录 IP，默认为 "127.0.0.1"        |
+| filetype   | 备份出类型，可以是 sql 或者 csv          |
+| thread     | 线程                                     |
+| backupDir  | 备份路径                                 |
+| oldDir     | 需要删除的备份路径                       |
+| logFile    | 日志路径                                 |
+| binaryPath | dumpling 包路径                          |
+
+* 使用演示
+
+```shell
+➜  PingCAP git:(master) ✗ cat nohup.log 
+[1]  + 21919 done       nohup ./dumpling.sh &> nohup.log
+➜  PingCAP git:(master) ✗ cat nohup.log 
+nohup: ignoring input
+/home/db/tidbmgt/tools/dumpling is exist~
+/tidbbackup/fmtfx_back/ exist~
+dumpling start~, backup dir is [ /tidbbackup/fmtfx_back/20211008 ]
+You can execute the [ tail -f /tidbbackup/fmtfx_back/main.log ] command to view the progress 
 ```
