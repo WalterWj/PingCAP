@@ -47,13 +47,13 @@ main(){
     parserDb;
     local dbName=($dbName)
     # Get all db names in the library
-    for ((i=1;i<${#dbName[@]};i++)); do
-        local _dbname=${dbName[i]}
+    for ((dbi=1;dbi<${#dbName[@]};dbi++)); do
+        local _dbname=${dbName[dbi]}
         local table_name=$($mysql_path -u$db_user -h$db_ip -P$db_port -p$db_password $_dbname -e "select distinct TABLE_NAME from information_schema.tables where TABLE_SCHEMA ='$_dbname' and TABLE_TYPE <> 'VIEW';")
         local table_name=($table_name)
         # Get all db names in the library
-        for ((i=1;i<${#table_name[@]};i++)); do
-          local _table_names=${table_name[i]}
+        for ((tbi=1;tbi<${#table_name[@]};tbi++)); do
+          local _table_names=${table_name[tbi]}
           analyze;
           echo "Analyze table $_dbname.$_table_names Sucess~"
           sleep 1
