@@ -559,3 +559,24 @@ nohup: ignoring input
 dumpling start~, backup dir is [ /tidbbackup/fmtfx_back/20211008 ]
 You can execute the [ tail -f /tidbbackup/fmtfx_back/main.log ] command to view the progress 
 ```
+
+# time_to_tso.py
+
+* 脚本目的
+  * 将时间转为 TSO
+
+* 使用演示
+
+```shell
+./time_to_tso.py '2021-12-13 18:14:18.123' 
+TSO: 42975637225419571
+
+# 使用 tidb 解析 tso
+(root@127.0.0.1) [(none)]>select tidb_parse_tso(429756372254195712);
++------------------------------------+
+| tidb_parse_tso(429756372254195712) |
++------------------------------------+
+| 2021-12-13 18:14:18.123000         |
++------------------------------------+
+1 row in set (0.00 sec)
+```
