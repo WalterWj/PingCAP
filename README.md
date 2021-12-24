@@ -336,29 +336,29 @@ optional arguments:
 
 # 更新 test、sbtest 两个库中所有表的统计信息
 $ ./Analyze.py -d test,sbtest -p123456
-Analyze table test.t Sucessful
-Analyze table test.t1 Sucessful
-Analyze table test.t2 Sucessful
+2021-12-24 13:56:48 Analyze table test.t Sucessful
+2021-12-24 13:56:48 Analyze table test.t1 Sucessful
+2021-12-24 13:56:48 Analyze table test.t2 Sucessful
 Statistics for all tables in Analyze test library succeeded~
 
-Analyze table sbtest.sbtest1 Sucessful
-Analyze table sbtest.sbtest2 Sucessful
-Analyze table sbtest.sbtest3 Sucessful
-Analyze table sbtest.t4 Sucessful
+2021-12-24 13:56:48 Analyze table sbtest.sbtest1 Sucessful
+2021-12-24 13:56:48 Analyze table sbtest.sbtest2 Sucessful
+2021-12-24 13:56:48 Analyze table sbtest.sbtest3 Sucessful
+2021-12-24 13:56:48 Analyze table sbtest.t4 Sucessful
 Statistics for all tables in Analyze sbtest library succeeded~
 
 # 更新 test.t1、sbtest.sbtest1 两张表的统计信息
 $ ./Analyze.py -t test.t1,sbtest.sbtest1 -p123456 
-Analyze table test.t1 Sucessful
+2021-12-24 13:56:48 Analyze table test.t1 Sucessful
 Success Analyze all tables
-Analyze table sbtest.sbtest1 Sucessful
+2021-12-24 13:56:48 Analyze table sbtest.sbtest1 Sucessful
 Success Analyze all tables
 
 # 调整阈值
 ./Analyze.py -t test.t1,sbtest.sbtest1 -p123456 -sh 20
-db: test, table: t1 health: 100,skip analyze
+2021-12-24 13:56:48 db: test, table: t1 health: 100,skip analyze
 Success Analyze all tables
-db: sbtest, table: sbtest1 health: 100,skip analyze
+2021-12-24 13:56:48 db: sbtest, table: sbtest1 health: 100,skip analyze
 Success Analyze all tables
 ```
 
