@@ -3,6 +3,7 @@
 
 import argparse
 import pymysql
+import time
 
 # If Python is version 2.7, encoding problems can reload sys configuration
 try:
@@ -51,15 +52,19 @@ def parser_stats(db_name, table_name):
 
 
 def analyze_table(db_name, table_name, healthy):
+    # time format
+    time_format = time.strftime("%Y-%m-%d %H:%M:%S",
+                                time.localtime())
     # Analyze the table
     _health = parser_stats(db_name, table_name)
     if _health <= int(healthy):
         mysql_execute("use {}".format(db_name),
                       "analyze table {}".format(table_name))
-        print("Analyze table {}.{} Sucessful".format(db_name, table_name))
+        print("{} Analyze table {}.{} Sucessful".format(
+            time_format, db_name, table_name))
     else:
-        print("db: {}, table: {} health: {},skip analyze".format(
-            db_name, table_name, _health))
+        print("{} db: {}, table: {} health: {},skip analyze".format(time_format,
+                                                                    db_name, table_name, _health))
 
 
 def analyze_db(db_name, healthy):
