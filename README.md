@@ -301,15 +301,16 @@ Analyze table jh_test.t1 Sucess~
 
 * 参数说明：
 
-| 参数 | 说明                                   |
-| ---- | -------------------------------------- |
-| -h   | 显示脚本使用方式                       |
-| -P   | 数据库连接端口，默认 4000              |
-| -p   | 数据库密码，默认为空                   |
-| -H   | 数据库连接 IP，默认为 127.0.0.1        |
-| -u   | 数据库连接账户，默认为 root            |
-| -d   | 需要收集统计信息的库，多个使用逗号隔开 |
-| -t   | 需要收集统计信息的表，多个使用逗号隔开 |
+| 参数 | 说明                                                    |
+| ---- | ------------------------------------------------------- |
+| -h   | 显示脚本使用方式                                        |
+| -P   | 数据库连接端口，默认 4000                               |
+| -p   | 数据库密码，默认为空                                    |
+| -H   | 数据库连接 IP，默认为 127.0.0.1                         |
+| -u   | 数据库连接账户，默认为 root                             |
+| -d   | 需要收集统计信息的库，多个使用逗号隔开                  |
+| -t   | 需要收集统计信息的表，多个使用逗号隔开                  |
+| -sh  | health 判断，如果健康度较高，则跳过检查。默认阈值为 100 |
 
 * 使用演示
 
@@ -317,35 +318,47 @@ Analyze table jh_test.t1 Sucess~
 # 可以使用 -h 进行帮助查看
 $ ./Analyze.py -h
 usage: Analyze.py [-h] [-P PORT] [-H MYSQL] [-u USER] [-p PASSWORD]
-                  [-d DATABASE] [-t TABLES]
+                  [-d DATABASE] [-t TABLES] [-sh STATS_HEALTHY]
 
 Update table statistics manually
 
 optional arguments:
-  -h, --help   show this help message and exit
-  -P PORT      tidb port, default: 4000
-  -H MYSQL     Database address, default: 127.0.0.1
-  -u USER      Database account, default: root
-  -p PASSWORD  Database password, default: null
-  -d DATABASE  Database name, for example: test,test1, default: None
-  -t TABLES    Table name (database.table), for example: test.test,test.test2,
-               default: None
+  -h, --help         show this help message and exit
+  -P PORT            tidb port, default: 4000
+  -H MYSQL           Database address, default: 127.0.0.1
+  -u USER            Database account, default: root
+  -p PASSWORD        Database password, default: null
+  -d DATABASE        Database name, for example: test,test1, default: None
+  -t TABLES          Table name (database.table), for example:
+                     test.test,test.test2, default: None
+  -sh STATS_HEALTHY  Table stats healthy, If it is below the threshold, then
+                     analyze~
 
-# 更新 test、hdata_migrate 两个库中所有表的统计信息
-$ ./Analyze.py -p 123 -d test,hdata_migrate
+# 更新 test、sbtest 两个库中所有表的统计信息
+$ ./Analyze.py -d test,sbtest -p123456
+Analyze table test.t Sucessful
 Analyze table test.t1 Sucessful
 Analyze table test.t2 Sucessful
-Analyze table test.t3 Sucessful
 Statistics for all tables in Analyze test library succeeded~
 
-Analyze table hdata_migrate.ods_risk_operaterecord Sucessful
-Statistics for all tables in Analyze hdata_migrate library succeeded~
+Analyze table sbtest.sbtest1 Sucessful
+Analyze table sbtest.sbtest2 Sucessful
+Analyze table sbtest.sbtest3 Sucessful
+Analyze table sbtest.t4 Sucessful
+Statistics for all tables in Analyze sbtest library succeeded~
 
-# 更新 test.t1、hdata_migrate.ods_risk_operaterecord 两张表的统计信息
-$ ./Analyze.py -p 123 -t test.t1,hdata_migrate.ods_risk_operaterecord
+# 更新 test.t1、sbtest.sbtest1 两张表的统计信息
+$ ./Analyze.py -t test.t1,sbtest.sbtest1 -p123456 
 Analyze table test.t1 Sucessful
 Success Analyze all tables
-Analyze table hdata_migrate.ods_risk_operaterecord Sucessful
+Analyze table sbtest.sbtest1 Sucessful
+Success Analyze all tables
+
+# 调整阈值
+./Analyze.py -t test.t1,sbtest.sbtest1 -p123456 -sh 20
+db: test, table: t1 health: 100,skip analyze
+Success Analyze all tables
+db: sbtest, table: sbtest1 health: 100,skip analyze
 Success Analyze all tables
 ```
 
