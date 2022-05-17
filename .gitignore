@@ -13,6 +13,7 @@ test*.py
 *.csv
 *.log
 .vscode
+*.pyc
 
 # dir
 .idea/
