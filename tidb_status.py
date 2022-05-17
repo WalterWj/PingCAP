@@ -2,17 +2,23 @@
 # -*- coding: UTF-8 -*-
 
 
-import subprocess, os
-import time, argparse
+import subprocess
+import os
+import time
+import argparse
 
 
 def main():
     args = parse_args()
     httpApi = "http://{}:{}/status".format(args.host, args.status)
-    dropPort = "sudo iptables -A INPUT -p tcp --dport {} -j DROP".format(args.port)
-    acceptPort = "sudo iptables -D INPUT -p tcp --dport {} -j DROP".format(args.port)
-    portStatus = "sudo iptables -L -n | grep {} | grep DROP| wc -l".format(args.port)
-    psStatus = "sudo ps aux |grep tidb-server | grep {}|grep -Ev grep|wc -l".format(args.port)
+    dropPort = "sudo iptables -A INPUT -p tcp --dport {} -j DROP".format(
+        args.port)
+    acceptPort = "sudo iptables -D INPUT -p tcp --dport {} -j DROP".format(
+        args.port)
+    portStatus = "sudo iptables -L -n | grep {} | grep DROP| wc -l".format(
+        args.port)
+    psStatus = "sudo ps aux |grep tidb-server | grep {}|grep -Ev grep|wc -l".format(
+        args.port)
     while True:
         print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         time.sleep(args.time)
@@ -54,6 +60,7 @@ def checkApi(httpApi, number):
 
     return rt
 
+
 def checkPs(command):
     sta = os.popen(command)
     sta = int(sta.read())
@@ -64,11 +71,13 @@ def checkPs(command):
 
     return rt
 
+
 def tidbStatus(portStatus):
     sta = os.popen(portStatus)
     sta = int(sta.read())
 
     return sta
+
 
 def tidbActive(httpApi):
     try:
