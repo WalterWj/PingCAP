@@ -33,8 +33,12 @@ def main():
                 if checkPs(portStatus):
                     print("端口 {} 已经关闭".format(args.port))
                 else:
-                    os.system(dropPort)
-                    print("关闭端口 {}".format(args.port))
+                    # 避免在检测过程中，tidb-server 进程关闭
+                    if checkPs(psStatus):
+                        os.system(dropPort)
+                        print("关闭端口 {}".format(args.port))
+                    else:
+                        print("tidb 数据库进程不存在, 端口为：{}".format(args.port))
         else:
             print("tidb 数据库进程不存在, 端口为：{}".format(args.port))
 
@@ -52,6 +56,7 @@ def checkApi(httpApi, number):
 
         if nc >= number:
             rt = False
+            print("第 {} 次检测不正常".format(nc))
             break
         else:
             print("第 {} 次检测不正常".format(nc))
