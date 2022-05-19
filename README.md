@@ -598,3 +598,39 @@ TSO: 42975637225419571
 + 1. TSO = 物理时间 + 逻辑时间
 + 2. 当前代码中逻辑时间使用 18 位 0 代替
 + 3. 所以生成的和原始的不一样的
+
+# tidb_status.py
+
+* 脚本目的
+
+定时检查 tidb-server 10080 端口 status api 状态，默认如果进程存在，但是 status api 无法监测到，就默认将 4000 端口添加防火墙。
+
+在 kill -19 挂起进程下，端口存活但是进程无响应，模拟假死状况。但是这种情况下，应用或者负载均衡很难判断出异常，因此写这个守护脚本进行监测。
+
+* 使用演示
+
+```shell
+✗ python2 tidb_status.py -h
+usage: tidb_status.py [-h] [-P PORT] [-H HOST] [-s STATUS] [-n NUMBER]
+                      [-t STIME]
+
+Check tidb status
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -P PORT     tidb port, default: 4000
+  -H HOST     Database address, default: 127.0.0.1
+  -s STATUS   TiDB status port, default: 10080
+  -n NUMBER   try number, default: 3
+  -t STIME    sleep time, default: 3
+
+# 使用演示
+✗ python2 tidb_status.py
+2022-05-19 15:07:44
+数据库状态正常
+端口 4000 已经开启
+2022-05-19 15:07:47
+数据库状态正常
+端口 4000 已经开启
+...
+```
