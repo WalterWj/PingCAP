@@ -21,7 +21,7 @@ def main():
         args.port)
     while True:
         print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-        time.sleep(args.time)
+        time.sleep(int(args.Stime))
         if checkPs(psStatus):
             if checkApi(httpApi, args.number):
                 if checkPs(portStatus):
@@ -114,7 +114,7 @@ def parse_args():
                         help="try number, default: 3",
                         default=3)
     parser.add_argument("-t",
-                        dest="time",
+                        dest="Stime",
                         help="sleep time, default: 3",
                         default=3)
     args = parser.parse_args()
