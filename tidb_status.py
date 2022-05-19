@@ -25,6 +25,8 @@ def main():
         if checkPs(psStatus):
             if checkApi(httpApi, args.number):
                 if checkPs(portStatus):
+                    # 等待 10s 后恢复
+                    time.sleep(10)
                     os.system(acceptPort)
                     print("开启端口 {}".format(args.port))
                 else:
@@ -44,6 +46,7 @@ def main():
 
 
 def checkApi(httpApi, number):
+    # 判断 api 状态是否异常
     tidbA = tidbActive(httpApi)
     nc = 0
     while True:
@@ -53,7 +56,7 @@ def checkApi(httpApi, number):
             break
         else:
             nc += 1
-
+        # 控制异常次数，默认连续 3 次才进行关闭
         if nc >= number:
             rt = False
             print("第 {} 次检测不正常".format(nc))
