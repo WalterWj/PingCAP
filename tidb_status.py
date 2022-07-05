@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-
 import subprocess
 import os
 import time
@@ -11,16 +10,15 @@ import argparse
 def main():
     args = parse_args()
     httpApi = "http://{}:{}/status".format(args.host, args.status)
-    dropPort = "sudo iptables -A INPUT -p tcp --dport {} -j DROP".format(
+    dropPort = "sudo iptables -A INPUT -p tcp --dport {} -j REJECT --reject-with tcp-reset".format(
         args.port)
-    acceptPort = "sudo iptables -D INPUT -p tcp --dport {} -j DROP".format(
+    acceptPort = "sudo iptables -D INPUT -p tcp --dport {} -j REJECT --reject-with tcp-reset".format(
         args.port)
-    portStatus = "sudo iptables -L -n | grep {} | grep DROP| wc -l".format(
+    portStatus = "sudo iptables -L -n | grep {} | grep reject| wc -l".format(
         args.port)
     psStatus = "sudo ps aux |grep tidb-server | grep {}|grep -Ev grep|wc -l".format(
         args.port)
     while True:
-        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         time.sleep(int(args.Stime))
         if checkPs(psStatus):
             if checkApi(httpApi, args.number):
@@ -28,30 +26,30 @@ def main():
                     # 等待 10s 后恢复
                     time.sleep(10)
                     os.system(acceptPort)
-                    print("开启端口 {}".format(args.port))
+                    logsFile("开启端口 {}".format(args.port))
                 else:
-                    print("端口 {} 已经开启".format(args.port))
+                    logsFile("端口 {} 已经开启".format(args.port))
             else:
                 if checkPs(portStatus):
-                    print("端口 {} 已经关闭".format(args.port))
+                    logsFile("端口 {} 已经关闭".format(args.port))
                 else:
                     # 避免在检测过程中，tidb-server 进程关闭
                     if checkPs(psStatus):
                         os.system(dropPort)
-                        print("关闭端口 {}".format(args.port))
+                        logsFile("关闭端口 {}".format(args.port))
                     else:
-                        print("tidb 数据库进程不存在, 端口为：{}".format(args.port))
+                        logsFile("tidb 数据库进程不存在, 端口为：{}".format(args.port))
         else:
-            print("tidb 数据库进程不存在, 端口为：{}".format(args.port))
+            logsFile("tidb 数据库进程不存在, 端口为：{}".format(args.port))
 
 
 def checkApi(httpApi, number):
-    # 判断 api 状态是否异常
-    tidbA = tidbActive(httpApi)
     nc = 0
     while True:
+        # 判断 api 状态是否异常
+        tidbA = tidbActive(httpApi)
         if tidbA:
-            print("数据库状态正常")
+            logsFile("数据库状态正常")
             rt = True
             break
         else:
@@ -59,10 +57,10 @@ def checkApi(httpApi, number):
         # 控制异常次数，默认连续 3 次才进行关闭
         if nc >= number:
             rt = False
-            print("第 {} 次检测不正常".format(nc))
+            logsFile("第 {} 次检测不正常".format(nc))
             break
         else:
-            print("第 {} 次检测不正常".format(nc))
+            logsFile("第 {} 次检测不正常".format(nc))
 
         time.sleep(1)
 
@@ -97,6 +95,19 @@ def tidbActive(httpApi):
     return rt
 
 
+def logsFile(content):
+    fileName = time.strftime("%Y-%m-%d", time.localtime()) + "-status.log"
+    dirs = "logs"
+    # 判断有没有 logs 目录，如果没有就创建一个
+    if not os.path.exists(dirs):
+        os.makedirs(dirs)
+    # 日志文件添加 logs 目录
+    fileName = os.path.join(dirs, fileName)
+    timeLocal = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    with open(fileName, "a+") as f:
+        f.write("{}: {} \n".format(timeLocal, content))
+
+
 def parse_args():
     # Incoming parameters
     parser = argparse.ArgumentParser(description="Check tidb status")
@@ -120,6 +131,7 @@ def parse_args():
                         dest="Stime",
                         help="sleep time, default: 3",
                         default=3)
+
     args = parser.parse_args()
 
     return args
