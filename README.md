@@ -634,3 +634,59 @@ optional arguments:
 端口 4000 已经开启
 ...
 ```
+
+
+# restart_tidb_tiflash.py 脚本
+
+说明：脚本目的是访问 promethues 执行 query，查询 tiflash proxy 状态，如果 proxy 有重启，对应公式可以根据进程启动时间进行判断，默认如果 5min 内重启成功，就会捕获。
+进行相应 tidb-server 重启，重启后，脚本默认会等待 5min 后再进行监控。
+
+## 使用方法
+```shell
+# 查看帮助
+$ ./restart_tidb_tiflash.py -h
+usage: restart_tidb_tiflash.py [-h] [-P TIDBPORT] [-ph PROMADDR]
+                               [-th FLASHADDR]
+
+如果 tiflash 重启，重启本地 tidb-server
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -P TIDBPORT    tidb port, default: 4000
+  -ph PROMADDR   Prometheus ip 和端口, default: 127.0.0.1:9090
+  -th FLASHADDR  tiflash ip 和 proxy status 端口, default: 127.0.0.1:20292
+
+```
+
+### 使用案例
+```shell
+# 启动监控脚本
+$ ./restart_tidb_tiflash.py -ph "172.16.201.210:9291" -th "172.16.201.210:22293" -P 4201
+
+# 查看日志
+$ tail -f logs/2022-08-02-status.log 
+2022-08-02 14:41:44: tiflash 状态正常：172.16.201.210:9291 0 
+2022-08-02 14:41:51: tiflash 状态正常：172.16.201.210:9291 0 
+
+# 重启 tiflash
+$ tiup cluster restart wangjun-tidb -R tiflash -y; date
+...
+Restarted cluster `wangjun-tidb` successfully
+Tue Aug  2 14:42:19 CST 2022
+
+# 查看监控脚本日志
+$ tail -f logs/2022-08-02-status.log 
+2022-08-02 14:42:12: tiflash 状态正常：172.16.201.210:9291 0 
+2022-08-02 14:42:19: tiflash 可能发生重启：172.16.201.210:9291 1，开始多次判断：第 1 次 
+2022-08-02 14:42:20: tiflash 可能发生重启：172.16.201.210:9291 1，开始多次判断：第 2 次 
+2022-08-02 14:42:21: tiflash 可能发生重启：172.16.201.210:9291 1，开始多次判断：第 3 次 
+2022-08-02 14:42:22: tiflash 是否重启，已经连续判断 3 次，进行 tidb-server 重启 
+2022-08-02 14:42:25: 重启 tidb 成功：sudo systemctl restart tidb-4201.service 
+
+# 查看重启进程
+$ ps aux | grep -E "tiflash|tidb-serv"
+tidb       873 14.4  6.9 3570304 1131916 ?     Ssl  14:42   0:09 bin/tiflash/tiflash server --config-file conf/tiflash.toml
+tidb      1370  1.4  0.4 1254884 65488 ?       Ssl  14:42   0:00 bin/tidb-server -P 4201 --status=12081 --host=0.0.0.0 --advertise-address=172.16.201.210 --store=tikv --initialize-insecure --path=172.16.201.210:2579 --log-slow-query=/data/wangjun-tidb/tidb-deploy/tidb-4201/log/tidb_slow_query.log --config=conf/tidb.toml --log-file=/data/wangjun-tidb/tidb-deploy/tidb-4201/log/tidb.log
+wangjun   2263  0.0  0.0 112708   984 pts/2    S+   14:43   0:00 grep --color=auto -E tiflash|tidb-serv
+wangjun  32611  0.1  0.1 220892 18088 pts/1    S+   14:41   0:00 python ./restart_tidb_tiflash.py -ph 172.16.201.210:9291 -th 172.16.201.210:22293 -P 4201
+```
