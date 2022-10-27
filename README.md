@@ -690,3 +690,44 @@ tidb      1370  1.4  0.4 1254884 65488 ?       Ssl  14:42   0:00 bin/tidb-server
 wangjun   2263  0.0  0.0 112708   984 pts/2    S+   14:43   0:00 grep --color=auto -E tiflash|tidb-serv
 wangjun  32611  0.1  0.1 220892 18088 pts/1    S+   14:41   0:00 python ./restart_tidb_tiflash.py -ph 172.16.201.210:9291 -th 172.16.201.210:22293 -P 4201
 ```
+
+# SplitTable.py 脚本
+
+说明：脚本目的是获取当前表的数据分布，然后生成对应的 split 语法。
+且可以指定语法生成的库/表名
+
+使用场景：可以在跑批或者 insert select 下，模仿原表或者原目标表的数据分布，进行 split
+
+## 使用方法
+```shell
+usage: SplitTable.py [-h] [-P PORT] [-H MYSQL] [-u USER] [-p PASSWORD]
+                     [-t TABLES] [-tt TOTABLES]
+
+Update table statistics manually
+
+optional arguments:
+  -h, --help    show this help message and exit
+  -P PORT       tidb port, default: 4000
+  -H MYSQL      Database address, default: 127.0.0.1
+  -u USER       Database account, default: root
+  -p PASSWORD   Database password, default: null
+  -t TABLES     Table name (database.table), for example: test.test default:
+                None
+  -tt TOTABLES  Table name (database.table), for example: test.test1 default:
+                None
+
+```
+
+* 参数：
+`-t`: 解析的表
+`-tt`: 生产 split 的目标表，默认不添加会使用 `-t` 参数的表名
+
+### 使用案例
+```shell
+./SplitTable.py -P 4201 -p tidb@123 -t test.sbt3
+split table `test`.`sbt3` index `k_3` by ('15082931275-71506150285-51909720602-81342784324-01114645089-73049053419-98304802326-28965349754-62974367746-84533806438'),xxxx;
+split table `test`.`sbt3` by (2259465),xxx;
+split table `test`.`sbt3` index `k_2` by ('499952'),('499952');
+split table `test`.`sbt3` index `PRIMARY` by ('780336', '58085146578-56026749860-47299980660-03615766659-76405300524-63386680270-70730127379-92873626833-76132976414-20189494100'),xxxx;
+
+```

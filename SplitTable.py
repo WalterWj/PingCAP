@@ -71,14 +71,14 @@ class SplitTable():
             sctv = []
             sctv.append(sct['_tidb_rowid'])
             sctv = tuple(sctv)
-        elif sct.has_key('handle'):
+        elif sct.has_key('handle') and ct['INDEX_NAME'] is None:
             sctv = sct['handle'].values()
             sctv = tuple(sctv[::-1])
         elif sct.has_key('index_vals') and ct['INDEX_ID'] == sct['index_id']:
             sctv = sct['index_vals'].values()
             sctv = tuple(sctv[::-1])
         else:
-            sctv = ('0',)
+            sctv = None
 
         try:
             ect = eval(ct['end'])
@@ -88,21 +88,32 @@ class SplitTable():
             ectv = []
             ectv.append(ect['_tidb_rowid'])
             ectv = tuple(ectv)
-        elif ect.has_key('handle'):
+        elif ect.has_key('handle') and ct['INDEX_NAME'] is None:
             ectv = ect['handle'].values()
             ectv = tuple(ectv[::-1])
         elif ect.has_key('index_vals') and ct['INDEX_ID'] == ect['index_id']:
             ectv = ect['index_vals'].values()
             ectv = tuple(ectv[::-1])
         else:
-            ectv = ('0',)
+            ectv = None
 
-        if len(sctv) == 1:
-            sctv = str(sctv).replace(',', '')
-        if len(ectv) == 1:
-            ectv = str(ectv).replace(',', '')
-
-        allct = str(sctv) + ',' + str(ectv)
+        if ectv is None and sctv is None:
+            allct = ''
+        elif ectv is None:
+            if len(sctv) == 1:
+                sctv = str(sctv).replace(',', '')
+            allct = str(sctv)
+        elif sctv is None:
+            if len(ectv) == 1:
+                ectv = str(ectv).replace(',', '')
+            allct = str(ectv)
+        else:
+            if len(sctv) == 1:
+                sctv = str(sctv).replace(',', '')
+            if len(ectv) == 1:
+                ectv = str(ectv).replace(',', '')
+            allct = str(sctv) + ',' + str(ectv)
+            
         allct = allct.strip(',')
         
         type = ct['INDEX_NAME']
@@ -111,12 +122,14 @@ class SplitTable():
     
     def parserSql(self, db, tbl, ct):
         for type, val in ct.items():
+            sql = ''
             val = val.strip(',')
             if type == 'None' or type == 'handle':
-                sql = 'split table `{}`.`{}` by {};'.format(db, tbl, val)
+                if val is not '':
+                    sql = 'split table `{}`.`{}` by {};'.format(db, tbl, val)
             else:
-                sql = 'split table `{}`.`{}` index `{}` by {};'.format(db, tbl, type, val)
-            
+                if val is not '':
+                    sql = 'split table `{}`.`{}` index `{}` by {};'.format(db, tbl, type, val)
             
             print(sql)
         
@@ -134,7 +147,13 @@ class SplitTable():
             type = str(type)
             parsers[type] = ct + ',' + parsers.get(type,'')
         
-        self.parserSql(db, tb, parsers)
+        if args.totables is '':
+            self.parserSql(db, tb, parsers)
+        else:
+            tdb = args.totables.split('.')[0]
+            ttb = args.totables.split('.')[1]
+            
+            self.parserSql(tdb, ttb, parsers)
 
     def parse_args(self):
         # Incoming parameters
@@ -155,13 +174,19 @@ class SplitTable():
         parser.add_argument("-p",
                             dest="password",
                             help="Database password, default: null",
-                            default="tidb@123")
+                            default="")
         parser.add_argument(
             "-t",
             dest="tables",
             help=
             "Table name (database.table), for example: test.test default: None",
-            default='test.sbt3')
+            default='')
+        parser.add_argument(
+            "-tt",
+            dest="totables",
+            help=
+            "Table name (database.table), for example: test.test1 default: None",
+            default='')
 
         args = parser.parse_args()
 
