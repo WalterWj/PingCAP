@@ -756,7 +756,7 @@ TiDB 数据库表差异检查是一个用于比较两个 TiDB 数据库之间的
 进入克隆的仓库目录，并运行脚本：
 
 ```bash
-python sync_diff_T2T.py -mh <master_host> -mu <master_user> -mp <master_password> -sh <slave_host> -su <slave_user> -sp <slave_password> -b <binary_path>
+python sync_diff_T2T.py -mh <master_host> -mu <master_user> -mp <master_password> -sh <slave_host> -su <slave_user> -sp <slave_password> -b <binary_path> -dl "db1,db2,db3"
 ```
 
 参数说明：
@@ -768,6 +768,7 @@ python sync_diff_T2T.py -mh <master_host> -mu <master_user> -mp <master_password
 - `-su`: 从数据库的用户名，默认为 `root`
 - `-sp`: 从数据库的密码，默认为 `tidb@123`
 - `-b`: `sync_diff_inspector` 的二进制文件路径，默认为当前目录 `./`
+- `-dl`: 需要对比的数据库列表，默认为空，可配置为："db1,db2,db3"
 
 ### 3. 查看结果
 

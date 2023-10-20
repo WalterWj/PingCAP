@@ -27,7 +27,14 @@ def main():
     # 格式化时间为精确到秒的字符串
     formatted_time = current_time.strftime("%Y%m%d%H%M%S")
     outDir = os.path.join(script_directory, formatted_time)  # 构建输出目录路径
-    formatConfig(args.masterHost, args.masterUser, args.masterPassword, masterTso, args.slaveHost, args.slaveUser, args.slavePassword, slaveTso, outDir)  # 生成配置文件
+    # 格式化库列表
+    if len(args.DatabaseList) > 0:
+        dbList = ['"{}.*"'.format(db) for db in args.DatabaseList.split(',')]
+        dbList = ",".join(dbList)
+    else:
+        dbList = ""
+    # 生成配置
+    formatConfig(args.masterHost, args.masterUser, args.masterPassword, masterTso, args.slaveHost, args.slaveUser, args.slavePassword, slaveTso, outDir, dbList)  # 生成配置文件
     
     # 执行命令
     binaryPath = os.path.join(args.binaryPath, "sync_diff_inspector")
@@ -39,7 +46,7 @@ def main():
         print(e.output.decode('utf-8'))
         exit(1)
 
-def formatConfig(masterHost, masterUser, masterPassword, masterTso, slaveHost, slaveUser, slavePassword, slaveTso, outDir):
+def formatConfig(masterHost, masterUser, masterPassword, masterTso, slaveHost, slaveUser, slavePassword, slaveTso, outDir, dbList):
     masterPort = int(masterHost.split(":",1)[1])
     slavePort = int(slaveHost.split(":",1)[1])
     config = """
@@ -85,9 +92,10 @@ check-struct-only = false
     source-instances = ["master"]
 
     target-instance = "slave"
-    target-check-tables = ["*.*"]
+    target-check-tables = ["!INFORMATION_SCHEMA.*","!METRICS_SCHEMA.*","!PERFORMANCE_SCHEMA.*","!mysql.*","!test.*","!tidb_binlog.*",{}]
 
-    """.format(masterHost.split(":",1)[0], masterPort, masterUser, masterPassword, masterTso, slaveHost.split(":",1)[0], slavePort, slaveUser, slavePassword, slaveTso, outDir)
+    """.format(masterHost.split(":",1)[0], masterPort, masterUser, masterPassword, masterTso, 
+               slaveHost.split(":",1)[0], slavePort, slaveUser, slavePassword, slaveTso, outDir, dbList)
     
     # 打开文件以写入内容，如果文件不存在则创建它
     with open('config.toml', 'w') as file:
@@ -142,6 +150,10 @@ def parse_args():
     parser.add_argument("-mp",
                         dest="masterPassword",
                         help="Source database password, default: null",
+                        default="")
+    parser.add_argument("-dl",
+                        dest="DatabaseList",
+                        help="Diff database list, default: null, for example: db1,db2,db3",
                         default="")
     parser.add_argument(
         "-sh",
