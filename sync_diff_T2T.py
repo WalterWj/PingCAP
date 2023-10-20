@@ -39,6 +39,8 @@ def main():
     # 执行命令
     binaryPath = os.path.join(args.binaryPath, "sync_diff_inspector")
     command = "{} --config=./config.toml".format(binaryPath)  # 构建执行命令
+    # 命令 print
+    print("执行命令：{}".format(command))
     try:
         result = subprocess.check_output(shlex.split(command))  # 执行命令并捕获输出
         print("执行结果:", result)
