@@ -1,0 +1,17 @@
+total-session max|@|max_over_time(sum by (tidb_server_connections)(tidb_server_connections)[2h:])|@|
+active-session max|@|max_over_time(sum by (tidb_server_tokens)(tidb_server_tokens)[2h:])|@|
+QPS max|@|max_over_time(sum(rate(tidb_server_query_total{result="OK"}[1m]))[2h:])|@|
+Transaction-OPS|@|max_over_time(sum(rate(tidb_session_transaction_duration_seconds_count{type="commit",txn_mode="optimistic"}[1m]))[2h:])|@|
+60 duration|@|histogram_quantile(0.60, sum(rate(tidb_server_handle_query_duration_seconds_bucket[2h])) by (le)) * 1000|@|ms
+99 duration|@|histogram_quantile(0.99, sum(rate(tidb_server_handle_query_duration_seconds_bucket[2h])) by (le)) * 1000|@|ms
+Failed-Query-OPM (TOTAL)|@|max_over_time(sum(increase(tidb_server_execute_error_total[1m]))[2h:])|@|
+TiDB-cpu-max|@|max_over_time(max(irate(process_cpu_seconds_total{job="tidb"}[30s]))[2h:]) * 100|@|%
+TiDB-Memory-max|@|max_over_time(max(sum(process_resident_memory_bytes{job="tidb"}))[2h:]) / 1024 / 1024 / 1024|@|GB
+TiKV-cpu-max|@|max_over_time(max(irate(process_cpu_seconds_total{job="tikv"}[30s]))[2h:]) * 100|@|%
+TiKV-Memory-max|@|max_over_time(max(sum(process_resident_memory_bytes{job="tikv"}))[2h:]) / 1024 / 1024 / 1024|@|GB
+Network-Traffic-max-out|@|max_over_time(max(irate(node_network_transmit_bytes_total{device!="lo"}[1m]))[2h:]) / 1024 / 1024|@|MIB
+Number-of-Regions|@|max_over_time(sum(pd_cluster_status{type="leader_count"})[2h:])|@|
+TiCDC-standby-lag|@|max_over_time(max(ticdc_owner_checkpoint_ts_lag{changefeed="standby-task"})[2h:])|@|s
+TiCDC-neardb-lag|@|max_over_time(max(ticdc_owner_checkpoint_ts_lag{changefeed="neardb-task"})[2h:])|@|s
+TiCDC-kafka-lag|@|max_over_time(max(ticdc_owner_checkpoint_ts_lag{changefeed="kafka-task"})[2h:])|@|s
+TiCDC-one-miiror-lag|@|max_over_time(max(ticdc_owner_checkpoint_ts_lag{changefeed="one-mirror-task"})[2h:])|@|s
