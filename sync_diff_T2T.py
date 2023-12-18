@@ -34,7 +34,7 @@ def main():
     else:
         dbList = ""
     # 生成配置
-    formatConfig(args.masterHost, args.masterUser, args.masterPassword, masterTso, args.slaveHost, args.slaveUser, args.slavePassword, slaveTso, outDir, dbList)  # 生成配置文件
+    formatConfig(args.threadCount, args.masterHost, args.masterUser, args.masterPassword, masterTso, args.slaveHost, args.slaveUser, args.slavePassword, slaveTso, outDir, dbList)  # 生成配置文件
     
     # 执行命令
     binaryPath = os.path.join(args.binaryPath, "sync_diff_inspector")
@@ -48,7 +48,7 @@ def main():
         print(e.output.decode('utf-8'))
         exit(1)
 
-def formatConfig(masterHost, masterUser, masterPassword, masterTso, slaveHost, slaveUser, slavePassword, slaveTso, outDir, dbList):
+def formatConfig(threadCount, masterHost, masterUser, masterPassword, masterTso, slaveHost, slaveUser, slavePassword, slaveTso, outDir, dbList):
     masterPort = int(masterHost.split(":",1)[1])
     slavePort = int(slaveHost.split(":",1)[1])
     config = """
@@ -57,7 +57,7 @@ def formatConfig(masterHost, masterUser, masterPassword, masterTso, slaveHost, s
 ######################### Global config #########################
 
 # how many goroutines are created to check data
-check-thread-count = 16
+check-thread-count = {}
 
 # set false if just want compare data by checksum, will skip select data when checksum is not equal.
 # set true if want compare all different rows, will slow down the total compare time.
@@ -96,7 +96,7 @@ check-struct-only = false
     target-instance = "slave"
     target-check-tables = ["!INFORMATION_SCHEMA.*","!METRICS_SCHEMA.*","!PERFORMANCE_SCHEMA.*","!mysql.*","!test.*","!tidb_binlog.*",{}]
 
-    """.format(masterHost.split(":",1)[0], masterPort, masterUser, masterPassword, masterTso, 
+    """.format(threadCount, masterHost.split(":",1)[0], masterPort, masterUser, masterPassword, masterTso, 
                slaveHost.split(":",1)[0], slavePort, slaveUser, slavePassword, slaveTso, outDir, dbList)
     
     # 打开文件以写入内容，如果文件不存在则创建它
@@ -175,6 +175,11 @@ def parse_args():
         dest="binaryPath",
         help="Sync diff binary path, for example: /user/bin/, default: ./",
         default="./")
+    parser.add_argument(
+        "-t",
+        dest="threadCount",
+        help="set check-thread-count, default: 16",
+        default="16")
 
     args = parser.parse_args()
 
