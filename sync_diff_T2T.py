@@ -33,6 +33,7 @@ def main():
         dbList = ",".join(dbList)
     else:
         dbList = ""
+    
     # 生成配置
     formatConfig(args.threadCount, args.masterHost, args.masterUser, args.masterPassword, masterTso, args.slaveHost, args.slaveUser, args.slavePassword, slaveTso, outDir, dbList)  # 生成配置文件
     
@@ -41,12 +42,29 @@ def main():
     command = "{} --config=./config.toml".format(binaryPath)  # 构建执行命令
     # 命令 print
     print("执行命令：{}".format(command))
+    # update gc: changeGc("127.0.0.1:4100", "root", "root", "12h")
+    print("update gc for master")
+    masterGcTime = changeGc(args.masterHost, args.masterUser, args.masterPassword, args.gcTime)
+    print("update gc for slave")
+    slaveGcTime = changeGc(args.slaveHost, args.slaveUser, args.slavePassword,args.gcTime)
     try:
         result = subprocess.check_output(shlex.split(command))  # 执行命令并捕获输出
         print("执行结果:", result)
     except subprocess.CalledProcessError as e:
         print(e.output.decode('utf-8'))
+        # Change back to gc time
+        print("diff Error, Change back to gc time")
+        print("update gc for master")
+        changeGc(args.masterHost, args.masterUser, args.masterPassword, masterGcTime)
+        print("update gc for slave")
+        changeGc(args.slaveHost, args.slaveUser, args.slavePassword,slaveGcTime)
         exit(1)
+    
+    # Change back to gc time
+    print("update gc for master")
+    changeGc(args.masterHost, args.masterUser, args.masterPassword, masterGcTime)
+    print("update gc for slave")
+    changeGc(args.slaveHost, args.slaveUser, args.slavePassword,slaveGcTime)
 
 def formatConfig(threadCount, masterHost, masterUser, masterPassword, masterTso, slaveHost, slaveUser, slavePassword, slaveTso, outDir, dbList):
     masterPort = int(masterHost.split(":",1)[1])
@@ -137,6 +155,40 @@ def parseTso(slaveHost, slaveUser, slavePassword):
 
     return masterTso, slaveTso
 
+def changeGc(dbHost, dbUser, dbPassword, gcTime):
+    port = int(dbHost.split(":",1)[1])
+    # connect mysql
+    config = {
+        "host": dbHost.split(":",1)[0],
+        "user": dbUser,
+        "password": dbPassword,
+        "port": port,
+        "charset": 'utf8mb4',
+        "cursorclass": pymysql.cursors.DictCursor
+    }
+
+    connection = pymysql.connect(**config)  # 连接到MySQL数据库
+    cursor = connection.cursor()
+    # select gc time sql
+    selectGcSql = """
+    select variable_value from mysql.tidb where variable_name='tikv_gc_life_time'; 
+    """
+    # update gc time sql
+    upGcSql = """
+    update mysql.tidb set VARIABLE_VALUE='{}' where variable_name='tikv_gc_life_time';
+    """.format(gcTime)
+    # select gc time
+    cursor.execute(selectGcSql)
+    selectGc = cursor.fetchone()
+    # update gc time to gcTime
+    cursor.execute(upGcSql)
+    connection.commit()
+    connection.close()
+    print("TiDB gc: {}, update gc: {}".format(selectGc['variable_value'], gcTime))
+    
+    # return tidb gc time
+    return selectGc['variable_value']
+
 # 解析命令行参数
 def parse_args():
     parser = argparse.ArgumentParser(description="Check tables for TiDB to TiDB.")
@@ -180,6 +232,11 @@ def parse_args():
         dest="threadCount",
         help="set check-thread-count, default: 16",
         default="16")
+    parser.add_argument(
+        "-g",
+        dest="gcTime",
+        help="set tidb gc time, default: 24h",
+        default="24h")
 
     args = parser.parse_args()
 
@@ -187,3 +244,4 @@ def parse_args():
 
 if __name__ == "__main__":
     main()
+    
