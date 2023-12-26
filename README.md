@@ -769,6 +769,8 @@ python sync_diff_T2T.py -mh <master_host> -mu <master_user> -mp <master_password
 - `-sp`: 从数据库的密码，默认为 `tidb@123`
 - `-b`: `sync_diff_inspector` 的二进制文件路径，默认为当前目录 `./`
 - `-dl`: 需要对比的数据库列表，默认为空，可配置为："db1,db2,db3"
+- `-t`: 对比并行，默认为 16
+- `-g`: 修改 tidb gc 时间，默认为 24h，上下游都修改。脚本正确执行完成后会修改会以前的 gc 时间。
 
 ### 3. 查看结果
 
