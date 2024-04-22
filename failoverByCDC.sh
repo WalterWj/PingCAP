@@ -214,11 +214,11 @@ getCheckPoint(){
     echo "取 cdc 获取同步任务状态命令: "
     echo ${command[*]}
     # 执行命令
-    # local result
-    # result=$("${command[@]}")
-    ## 这里是测试问题看结果
     local result
-    local result=$(cat ./tmp.txt)
+    result=$("${command[@]}")
+    ## 这里是测试问题看结果
+    #local result
+    #local result=$(cat ./tmp.txt)
     # 检查命令执行的返回值
     if [ $? -eq 0 ]; then
         echo "get CDC checkpoint tso command executed successfully."
