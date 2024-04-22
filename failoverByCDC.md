@@ -43,21 +43,21 @@
 
 ```shell
 ./failoverByCDC.sh --clusterName="tidb-test" \
---masterDB='10.102.58.180:4000' \
+--masterDB='10.xxx:4000' \
 --masterUser='root' \
---masterPassword='tidb@123' \
---masterPD='10.102.173.121:2379' \
---slaveDB='10.102.58.180:4000' \
+--masterPassword='tidbxxx' \
+--masterPD='10.xxx:2379' \
+--slaveDB='10.xxx:4000' \
 --slaveUser='root' \
 --slavePassword='tidb@123' \
 --slavePD='10.102.173.121:2379' \
 --version='v7.1.4' \
---reloadList='172.21.34.46:4000,172.21.34.47:4000' \
---changefeedID='userhub-tobackup' \
+--reloadList='172.xxx:4000,172xxx:4000' \
+--changefeedID='userxxkup' \
 --cdcConfig='cdc.conf' \
---lockUser="kfc_login@'%',phhs_login@'%',tidb@'%'" \
+--lockUser="xin@'%',pxlogin@'%',tidb@'%'" \
 --mod='1,2,3' \
---sink-uri="tidb://root:w@-Jd1G922+R@172.20.22.222:4000/&transaction-atomicity=none"
+--sink-uri="tidb://root:w@-xxx@1xx.xxx:4000/&transaction-atomicity=none"
 ```
 
 ## 示例参数解释
